@@ -57,6 +57,7 @@ To follow along, participants may wish to run the following code before the sess
 - <a href="http://abouthydrology.blogspot.co.uk/2012/08/r-resources-for-hydrologists.html" rel="nofollow">R-Resources for Hydrology</a> - a detailed list of R resources for hydrology (slightly outdated now)
 - <a href="https://journal.r-project.org/archive/2016/RJ-2016-036/RJ-2016-036.pdf" rel="nofollow">rnrfa</a> - an R package to interact with the UK National River Flow Archive ([GitHub repo](https://github.com/cvitolo/rnrfa))
 - <a href="https://ropensci.github.io/hddtools/" rel="nofollow">hddtools</a> - an R package to facilitate access to a variety of online open data sources for hydrologists
+- <a href="https://r-spatial.github.io/rgee/index.html" rel="nofollow">rgee</a> - An R binding package for calling Google Earth Engine API from within R
 - ....
 
 
