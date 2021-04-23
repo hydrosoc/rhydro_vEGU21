@@ -31,7 +31,7 @@ Links to individual presentations (for direct view in browser) are below:
 - [Course intro]() // K. Smith
 - [Data Retrieval]() // L. Slater 
 - [Extremes Modelling]() // I.Prosdocimi
-- [Hydrological Modelling ](https://hydrosoc.github.io/rhydro_vEGU21/presentations/03. hydro_model_GT/hydro_modelling.html) // G. Thirel
+- [Hydrological Modelling ](https://hydrosoc.github.io/rhydro_vEGU21/presentations/03.hydro_model_GT/hydro_modelling.html) // G. Thirel
 - [Hydrological Forecasting]() // K. Smith
 - [Google Earth Enigne](https://hydrosoc.github.io/rhydro_vEGU21/presentations/05.GEE_AK/GEE_AK.html) // A.Khouakhi
 
