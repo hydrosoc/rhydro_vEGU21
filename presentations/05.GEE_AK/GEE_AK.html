@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>rHydro2021: Earth Engine for hydrology in R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Abdou Khouakhi" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <script src="libs/htmlwidgets/htmlwidgets.js"></script>
+    <script src="libs/jquery/jquery.min.js"></script>
+    <link href="libs/leaflet/leaflet.css" rel="stylesheet" />
+    <script src="libs/leaflet/leaflet.js"></script>
+    <link href="libs/leafletfix/leafletfix.css" rel="stylesheet" />
+    <script src="libs/proj4/proj4.min.js"></script>
+    <script src="libs/Proj4Leaflet/proj4leaflet.js"></script>
+    <link href="libs/rstudio_leaflet/rstudio_leaflet.css" rel="stylesheet" />
+    <script src="libs/leaflet-binding/leaflet.js"></script>
+    <script src="libs/leaflet-providers/leaflet-providers_1.9.0.js"></script>
+    <script src="libs/leaflet-providers-plugin/leaflet-providers-plugin.js"></script>
+    <script src="libs/clipboard/setClipboardText.js"></script>
+    <link rel="stylesheet" href="static/css/rhydro.css" type="text/css" />
+    <link rel="stylesheet" href="static/css/head-foot.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: title-slide, left, middle
+
+&lt;h1&gt; Google Earth Engine &lt;br&gt; 
+for hydrology in R
+
+&lt;br&gt;
+
+
+&lt;h3&gt; Abdou Khouakhi &lt;br&gt; 
+&lt;em&gt; Cranfield University &lt;/em&gt; 
+&lt;/h3&gt;
+&lt;br&gt;
+&lt;br&gt;
+ 
+<svg aria-hidden="true" role="img" viewBox="0 0 512" style="height:1em;width:em;vertical-align:-0.125em;margin-right:0.2em;font-size:inherit;fill:lightgrey;overflow:visible;position:relative;"></svg> [@akhouakhi](https://twitter.com/ab_khouakhi)
+
+
+.title-logo-box[![](./static/img/rhydro_logo.png)]
+
+
+************************************************************
+
+
+---
+
+# Outline
+
+.middle[
+
+- #### Introduction to Google Earth Engine (GEE) and `rgee` Package
+
+- #### Quick demo 1: hydrological data retrieval using `rgee`
+
+- #### Quick demo 2: Simple example of machine learning in GEE
+
+**Notes:**
+-  This presentation is also accompanied by an [R script]() to execute in Rstudio
+
+- You need to sign up for a [Google Earth Engine account](https://signup.earthengine.google.com/#!/) to be able to access data and computing capabilities.
+
+]
+--
+
+---
+
+layout: false
+class: inverse, center, middle
+
+# Google Earth Engine
+--
+
+---
+
+# Google Earth Engine - What is it? 
+
+Google Earth Engine is a computing platform that allows users to run geospatial analysis on Google's infrastructure.
+
+The main components of GEE:
+
+- [Datasets](https://developers.google.com/earth-engine/datasets/): A petabyte-scale archive of publicly available remotely sensed imagery and other data.
+
+- [Compute power](https://reader.elsevier.com/reader/sd/pii/S0034425717302900?token=2AC58EA43ED5306A13DA0E6AF50A5F286D59B455B45F52F9932FE71845E5C75C706C78E079BC3769B23B256612A225D0): Google’s computational infrastructure optimized for parallel processing of geospatial data.
+- [APIs](https://developers.google.com/earth-engine/guides): APIs for JavaScript and Python (hosted on GitHub) for making requests to the Earth Engine servers.
+
+- [Code Editor](https://code.earthengine.google.com/): An online Integrated Development Environment (IDE) for rapid prototyping and visualization of complex spatial analyses using the Javascript API.
+
+- [Apps](https://www.earthengine.app/): A dynamic, publicly accessible user interface for Earth Engine analyses.
+--
+
+
+---
+## Data structure in GEE 
+
+- Data in GEE are structured in Collections; a stack or time series of images or gridded datasets and features
+
+- For example, all of the images produced by a single sensor are grouped together and presented as a “collection”. 
+
+- Collections can be filtered, sorted, joined, mapped, or reduced
+
+- An Image can be a Stack of Georeferenced bands
+
+- Each band has its own Mask, Projection, Resolution and a list of properties (Date, bbox..) 
+
+&lt;img src="GEE_AK_files/figure-html/unnamed-chunk-1-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+--
+
+---
+# Interacting with GEE 
+
+There are several ways to interact with the platform:
+
+.pull-left[  
+
+- [Explorer](https://explorer.earthengine.google.com/)
+
+- [Javascript Code Editor](https://code.earthengine.google.com/)
+
+- [Python wrapper library](https://github.com/google/earthengine-api/tree/master/python)
+
+- [Calling EE from within R](https://github.com/r-spatial/rgee)
+
+- [Using QGIS EE plugin](https://gee-community.github.io/qgis-earthengine-plugin/)
+&lt;br/&gt;&lt;br/&gt;
+
+&lt;img src="./static/img/Picture5.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+
+.pull-right[   
+&lt;img src="https://r-spatial.github.io/rgee/logo.png" width="60%" style="display: block; margin: auto;" /&gt;&lt;img src="http://www.gisandbeers.com/wp-content/uploads/2020/12/Imagenes-Google-Earth-en-QGIS.jpg" width="60%" style="display: block; margin: auto;" /&gt;&lt;img src="./static/img/Picture4.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+
+--
+
+
+---
+# `rgee` package ([Aybar et al. 2021](https://cloud.r-project.org/web/packages/rgee/index.html))
+
+- A package for calling [Google Earth Engine API](https://developers.google.com/earth-engine/) from within R
+- [Several functions](https://r-spatial.github.io/rgee/reference/index.html) have been implemented to simplify the connection with the R spatial ecosystem
+
+- Details of rgee setup and examples of scripts can be found [here](https://csaybar.github.io/rgee-examples/)
+
+.pull-left[ 
+Why rgee? 
+-   Various visualization options 
+-   Many functions to seamlessly interact with GEE API  
+-   Easier transition to a web application such as Shiny
+-   Reproducibility
+
+]
+
+.pull-right[ 
+&lt;img src="https://r-spatial.github.io/rgee/logo.png" width="80%" style="display: block; margin: auto 0 auto auto;" /&gt;
+]
+--
+
+
+---
+class: inverse, center, middle
+# Quick demo: GEE Data retrieval 
+
+
+```r
+# You will need the following libraries 
+library(rgee,quietly = T)
+library(tidyverse)
+library(sf)
+library(lubridate)
+library(stars)
+library(raster)
+library(cptcity)
+```
+
+
+```r
+# Initialize ee
+ee_Initialize(drive = T,quiet = T) 
+```
+
+--
+
+
+---
+  ## Select data sources
+
+We are going to obtain some hydrological datasets for the upper catchment of the Niger basin.
+We define an approximate location within the basin, retrieve the basin boundary, river network and other layers. 
+
+```r
+# get a rough location within a given catchment area
+poi &lt;- ee$Geometry$Point(-9.3, 10.38) # change here to your catchment approx. location 
+```
+
+Available data collections can be found at the [GEE data catalog](https://developers.google.com/earth-engine/datasets). Alternatively, you can run `ee_utils_dataset_display()`, a helper functions to open a web browser and search the catalog. 
+.tiny[
+
+```r
+# Hydrosheds -Basins - level 4 (change the level for subcatchments)
+hybas4 &lt;- "WWF/HydroSHEDS/v1/Basins/hybas_4"
+# River network
+ffriver &lt;- "WWF/HydroSHEDS/v1/FreeFlowingRivers"
+# SMAP soil moisture 10km
+smap10km &lt;- "NASA_USDA/HSL/SMAP10KM_soil_moisture"
+# Open land map monthly precip 1km
+mth_prcp1km &lt;- "OpenLandMap/CLM/CLM_PRECIPITATION_SM2RAIN_M/v01"
+# JRC Global Surface Water Mapping Layers 30m
+srfce_wtr30m &lt;- "JRC/GSW1_2/GlobalSurfaceWater"
+# Copernicus landcover 100m
+cgls100m &lt;- "COPERNICUS/Landcover/100m/Proba-V-C3/Global/2019"
+# ALOS global digital surface model 30m 
+alos_dsm &lt;- 'JAXA/ALOS/AW3D30/V3_2'
+# Sentinel 2- Surface reflectance
+S2SR &lt;- "COPERNICUS/S2_SR"
+```
+]
+--
+  
+---
+## Retrieve and visualize the data
+
+.tiny[
+Get the data
+
+```r
+# get the basin boundary
+basin &lt;- ee$FeatureCollection(hybas4)$filterBounds(poi)
+# river network
+riverNet &lt;- ee$FeatureCollection(ffriver)$filterBounds(basin)
+# get July rainfall over the basin
+mth_prcp_jul &lt;- ee$Image(mth_prcp1km)$clip(basin)$select('jul')
+# get SMAP soil moisture and select ssm band (layer) over the basin
+smap_sm &lt;- ee$ImageCollection(smap10km)$filterBounds(basin)$select("ssm")$first()$clip(basin)
+# get the surface Water- select frequency with which water was present
+jrc_srfce_wtr &lt;- ee$Image(srfce_wtr30m)$select("occurrence")$clip(basin)
+# get land cover CGLC 15-19 and select the landcover classes
+clc2019 &lt;- ee$Image(cgls100m)$select("discrete_classification")$clip(basin)
+# get ALOS global digital surface model 30m and select DSM
+alos_elev &lt;- ee$ImageCollection(alos_dsm)$filterBounds(basin)$select("DSM")$mosaic()$clip(basin)
+```
+
+Visualization parameters
+
+
+```r
+# define visualisation parameters 
+swater_vis &lt;- list(min = 0, max = 100, palette = c('ffffff', 'ffbbbb', '0000ff'))
+smap_vis &lt;- list(min = 0.0, max = 28.0, palette =cpt("pj_4_earth" ))
+prcp_vis &lt;- list(min = 0, max = 380, palette = cpt("ncl_precip3_16lev"))
+elev_vis &lt;- list(min = 0, max = 1500, palette = cpt("gmt_GMT_elevation"))
+# initialize a map and add layers 
+Map$centerObject(basin)
+basin_layer &lt;- Map$addLayer(basin,{},"basin")
+riverNet_layer &lt;- Map$addLayer(riverNet,list(width = 1.0, color = "blue"),"River network")
+jul_prcp_layer &lt;- Map$addLayer(mth_prcp_jul,prcp_vis,"July Precipitation in mm",legend = T)
+smapSl_layer &lt;- Map$addLayer(smap_sm,smap_vis,"SMAP soil moisture in mm")
+srfce_water_layer &lt;- Map$addLayer(jrc_srfce_wtr,swater_vis,"Surface water occurrence %", legend = T)
+clc_layer &lt;- Map$addLayer(clc2019,{},"Copernicus Land Cover 100m")
+elev_layer &lt;- Map$addLayer(alos_elev,elev_vis,"ALOS DMS 30m", legend =T)
+```
+]
+--
+
+
+---
+## Add layers to map 
+
+
+```r
+# show layers 
+basin_layer+jul_prcp_layer #smapSl_layer|srfce_water_layer
+```
+
+<div id="htmlwidget-b22367fd71b3fef511be" style="width:100%;height:432px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-b22367fd71b3fef511be">{"x":{"options":{"minZoom":1,"maxZoom":52,"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}},"preferCanvas":false,"bounceAtZoomLimits":false,"maxBounds":[[[-90,-370]],[[90,370]]]},"calls":[{"method":"addProviderTiles","args":["CartoDB.Positron","CartoDB.Positron","CartoDB.Positron",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["OpenStreetMap","OpenStreetMap","OpenStreetMap",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["CartoDB.DarkMatter","CartoDB.DarkMatter","CartoDB.DarkMatter",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["Esri.WorldImagery","Esri.WorldImagery","Esri.WorldImagery",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["OpenTopoMap","OpenTopoMap","OpenTopoMap",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],[],{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"addScaleBar","args":[{"maxWidth":100,"metric":true,"imperial":true,"updateWhenIdle":true,"position":"bottomleft"}]},{"method":"addTiles","args":["https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/maps/9851333b2f23838e58536e5cc6958623-b6c81cd26b5d172862a2ea8f31bdbcd5/tiles/{z}/{x}/{y}","basin","basin",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],"basin",{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"hideGroup","args":[null]},{"method":"addTiles","args":["https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/maps/c96323258d9818d1b438d0636083d90b-9e244b041cc6fd705324c43e90bb96a9/tiles/{z}/{x}/{y}","July Precipitation in mm","July Precipitation in mm",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],["basin","July Precipitation in mm"],{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"hideGroup","args":[null]},{"method":"addLegend","args":[{"colors":["#FFFFFF , #FFFFFF 0%, #B5C9FF 13.1578947368421%, #7F96FF 26.3157894736842%, #0264FB 39.4736842105263%, #25DB20 52.6315789473684%, #B7FF24 65.7894736842105%, #FFC600 78.9473684210526%, #FF7C00 92.1052631578947%, #FF1900 "],"labels":["0","50","100","150","200","250","300","350"],"na_color":null,"na_label":"NA","opacity":1,"position":"bottomright","type":"numeric","title":"July Precipitation in mm","extra":{"p_1":0,"p_n":0.921052631578947},"layerId":null,"className":"info legend","group":null}]}],"setView":[[11.0551876015876,-8.75483377540263],6,[]]},"evals":[],"jsHooks":{"render":[{"code":"function(el, x, data) {\n  return (\n      function(el, x, data) {\n      // get the leaflet map\n      var map = this; //HTMLWidgets.find('#' + el.id);\n      // we need a new div element because we have to handle\n      // the mouseover output separately\n      // debugger;\n      function addElement () {\n      // generate new div Element\n      var newDiv = $(document.createElement('div'));\n      // append at end of leaflet htmlwidget container\n      $(el).append(newDiv);\n      //provide ID and style\n      newDiv.addClass('lnlt');\n      newDiv.css({\n      'position': 'relative',\n      'bottomleft':  '0px',\n      'background-color': 'rgba(255, 255, 255, 0.7)',\n      'box-shadow': '0 0 2px #bbb',\n      'background-clip': 'padding-box',\n      'margin': '0',\n      'padding-left': '5px',\n      'color': '#333',\n      'font': '9px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif',\n      'z-index': '700',\n      });\n      return newDiv;\n      }\n\n\n      // check for already existing lnlt class to not duplicate\n      var lnlt = $(el).find('.lnlt');\n\n      if(!lnlt.length) {\n      lnlt = addElement();\n\n      // grab the special div we generated in the beginning\n      // and put the mousmove output there\n\n      map.on('mousemove', function (e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                           ' lon: ' + (e.latlng.lng).toFixed(5) +\n                           ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                           ' | zoom: ' + map.getZoom() +\n                           ' | x: ' + L.CRS.EPSG3857.project(e.latlng).x.toFixed(0) +\n                           ' | y: ' + L.CRS.EPSG3857.project(e.latlng).y.toFixed(0) +\n                           ' | epsg: 3857 ' +\n                           ' | proj4: +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs ');\n      } else {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      }\n      });\n\n      // remove the lnlt div when mouse leaves map\n      map.on('mouseout', function (e) {\n      var strip = document.querySelector('.lnlt');\n      if( strip !==null) strip.remove();\n      });\n\n      };\n\n      //$(el).keypress(67, function(e) {\n      map.on('preclick', function(e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      var txt = document.querySelector('.lnlt').textContent;\n      console.log(txt);\n      //txt.innerText.focus();\n      //txt.select();\n      setClipboardText('\"' + txt + '\"');\n      }\n      });\n\n      }\n      ).call(this.getMap(), el, x, data);\n}","data":null},{"code":"function(el, x, data) {\n  return (function(el,x,data){\n           var map = this;\n\n           map.on('keypress', function(e) {\n               console.log(e.originalEvent.code);\n               var key = e.originalEvent.code;\n               if (key === 'KeyE') {\n                   var bb = this.getBounds();\n                   var txt = JSON.stringify(bb);\n                   console.log(txt);\n\n                   setClipboardText('\\'' + txt + '\\'');\n               }\n           })\n        }).call(this.getMap(), el, x, data);\n}","data":null}]}}</script>
+--
+
+
+
+---
+## Add layers to map 
+
+```r
+# add layers
+basin_layer+riverNet_layer+srfce_water_layer+smapSl_layer+elev_layer+clc_layer
+```
+
+<div id="htmlwidget-b369958e56682d3258e2" style="width:100%;height:432px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-b369958e56682d3258e2">{"x":{"options":{"minZoom":1,"maxZoom":52,"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}},"preferCanvas":false,"bounceAtZoomLimits":false,"maxBounds":[[[-90,-370]],[[90,370]]]},"calls":[{"method":"addProviderTiles","args":["CartoDB.Positron","CartoDB.Positron","CartoDB.Positron",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["OpenStreetMap","OpenStreetMap","OpenStreetMap",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["CartoDB.DarkMatter","CartoDB.DarkMatter","CartoDB.DarkMatter",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["Esri.WorldImagery","Esri.WorldImagery","Esri.WorldImagery",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["OpenTopoMap","OpenTopoMap","OpenTopoMap",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],[],{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"addScaleBar","args":[{"maxWidth":100,"metric":true,"imperial":true,"updateWhenIdle":true,"position":"bottomleft"}]},{"method":"addTiles","args":["https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/maps/9851333b2f23838e58536e5cc6958623-b6c81cd26b5d172862a2ea8f31bdbcd5/tiles/{z}/{x}/{y}","basin","basin",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],"basin",{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"hideGroup","args":[null]},{"method":"addTiles","args":["https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/maps/649e60c0fcb1de473e83382640d057eb-8acd0f2d60f7a5777ad316068c5b65c8/tiles/{z}/{x}/{y}","River network","River network",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],["basin","River network"],{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"hideGroup","args":[null]},{"method":"addTiles","args":["https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/maps/f6ff89bab2cc0c5530c99ada0d9eace1-6dfccf94e8087e0da584aef62af701f3/tiles/{z}/{x}/{y}","Surface water occurrence %","Surface water occurrence %",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],["basin","River network","Surface water occurrence %"],{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"hideGroup","args":[null]},{"method":"addLegend","args":[{"colors":["#FFFFFF , #FFFFFF 0%, #FFE4E3 20%, #FFC9C8 40%, #E599CB 60%, #A456E6 80%, #0000FF 100%, #0000FF "],"labels":["0","20","40","60","80","100"],"na_color":null,"na_label":"NA","opacity":1,"position":"bottomright","type":"numeric","title":"Surface water occurrence %","extra":{"p_1":0,"p_n":1},"layerId":null,"className":"info legend","group":null}]},{"method":"addTiles","args":["https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/maps/84575c8aa79e1d07bb403f92fa3ced78-44a836fa85cafa897256cb6cc6b73b40/tiles/{z}/{x}/{y}","SMAP soil moisture in mm","SMAP soil moisture in mm",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],["basin","River network","Surface water occurrence %","SMAP soil moisture in mm"],{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"hideGroup","args":[null]},{"method":"addTiles","args":["https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/maps/4a7b87c3deb2c7bc951dd6e9834a404a-59e5aa00d9ffbd9994626f5a2e2d5f6d/tiles/{z}/{x}/{y}","ALOS DMS 30m","ALOS DMS 30m",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],["basin","River network","Surface water occurrence %","SMAP soil moisture in mm","ALOS DMS 30m"],{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"hideGroup","args":[null]},{"method":"addLegend","args":[{"colors":["#6C9D89 , #6C9D89 0%, #7EB299 13.3333333333333%, #9EC2A7 26.6666666666667%, #D9CFB8 40%, #DBC0AF 53.3333333333333%, #DCD2CC 66.6666666666667%, #E4E3E4 80%, #F8F8F8 93.3333333333333%, #FEFFFE "],"labels":["0","200","400","600","800","1,000","1,200","1,400"],"na_color":null,"na_label":"NA","opacity":1,"position":"bottomright","type":"numeric","title":"ALOS DMS 30m","extra":{"p_1":0,"p_n":0.933333333333333},"layerId":null,"className":"info legend","group":null}]},{"method":"addTiles","args":["https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/maps/7688f18f29e7090f2925239a828f25d0-6cd8ed5bfb8e0a15e921c83a1e2eaa64/tiles/{z}/{x}/{y}","Copernicus Land Cover 100m","Copernicus Land Cover 100m",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],["basin","River network","Surface water occurrence %","SMAP soil moisture in mm","ALOS DMS 30m","Copernicus Land Cover 100m"],{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"hideGroup","args":[null]}],"setView":[[11.0551876015876,-8.75483377540263],6,[]]},"evals":[],"jsHooks":{"render":[{"code":"function(el, x, data) {\n  return (\n      function(el, x, data) {\n      // get the leaflet map\n      var map = this; //HTMLWidgets.find('#' + el.id);\n      // we need a new div element because we have to handle\n      // the mouseover output separately\n      // debugger;\n      function addElement () {\n      // generate new div Element\n      var newDiv = $(document.createElement('div'));\n      // append at end of leaflet htmlwidget container\n      $(el).append(newDiv);\n      //provide ID and style\n      newDiv.addClass('lnlt');\n      newDiv.css({\n      'position': 'relative',\n      'bottomleft':  '0px',\n      'background-color': 'rgba(255, 255, 255, 0.7)',\n      'box-shadow': '0 0 2px #bbb',\n      'background-clip': 'padding-box',\n      'margin': '0',\n      'padding-left': '5px',\n      'color': '#333',\n      'font': '9px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif',\n      'z-index': '700',\n      });\n      return newDiv;\n      }\n\n\n      // check for already existing lnlt class to not duplicate\n      var lnlt = $(el).find('.lnlt');\n\n      if(!lnlt.length) {\n      lnlt = addElement();\n\n      // grab the special div we generated in the beginning\n      // and put the mousmove output there\n\n      map.on('mousemove', function (e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                           ' lon: ' + (e.latlng.lng).toFixed(5) +\n                           ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                           ' | zoom: ' + map.getZoom() +\n                           ' | x: ' + L.CRS.EPSG3857.project(e.latlng).x.toFixed(0) +\n                           ' | y: ' + L.CRS.EPSG3857.project(e.latlng).y.toFixed(0) +\n                           ' | epsg: 3857 ' +\n                           ' | proj4: +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs ');\n      } else {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      }\n      });\n\n      // remove the lnlt div when mouse leaves map\n      map.on('mouseout', function (e) {\n      var strip = document.querySelector('.lnlt');\n      if( strip !==null) strip.remove();\n      });\n\n      };\n\n      //$(el).keypress(67, function(e) {\n      map.on('preclick', function(e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      var txt = document.querySelector('.lnlt').textContent;\n      console.log(txt);\n      //txt.innerText.focus();\n      //txt.select();\n      setClipboardText('\"' + txt + '\"');\n      }\n      });\n\n      }\n      ).call(this.getMap(), el, x, data);\n}","data":null},{"code":"function(el, x, data) {\n  return (function(el,x,data){\n           var map = this;\n\n           map.on('keypress', function(e) {\n               console.log(e.originalEvent.code);\n               var key = e.originalEvent.code;\n               if (key === 'KeyE') {\n                   var bb = this.getBounds();\n                   var txt = JSON.stringify(bb);\n                   console.log(txt);\n\n                   setClipboardText('\\'' + txt + '\\'');\n               }\n           })\n        }).call(this.getMap(), el, x, data);\n}","data":null}]}}</script>
+--
+
+---
+# GEE and ggplot 
+
+.tiny[
+Here, we use the basin geometry to locally download the gridded rainfall data at the basin level  
+
+```r
+# basin to ee Geometry 
+ee_basin &lt;- basin$geometry() 
+# smap sm to raster
+prcp_raster &lt;- ee_as_raster(mth_prcp_jul, 
+                            region = ee_basin, quiet = T) 
+# raster to df
+ras_todf &lt;- as.data.frame(prcp_raster, xy = T) %&gt;% 
+  drop_na() %&gt;% filter(jul&gt;0)
+# basin to sf 
+basin_sf &lt;- ee_as_sf(basin)
+```
+]
+
+.tiny.pull-left[
+
+```r
+# Integrate GEE data with other ggplot layers
+ggplot(basin_sf) +
+    geom_raster(
+      data = ras_todf,
+      aes(x = x, y = y, fill = jul)
+    ) +
+    scale_fill_gradientn(colours = cpt("ncl_precip3_16lev" )) +
+    geom_sf(fill = NA, color = "red") +
+    labs(fill = "July precip [mm]")+
+    theme_bw()
+```
+]
+
+.pull-right[
+&lt;img src="GEE_AK_files/figure-html/plot-label-out-1.png" width="100%" /&gt;
+]
+--
+
+---
+
+layout: false
+class: inverse, center, middle
+
+# Quick demo2: identify surface water areas using machine learning within GEE
+--
+
+---
+## Identify water and non-water 
+-   Here, we are going to train a simple machine learning algorithm to distinguish between water and non water areas for a given month at 10 m resolution within our basin using GEE data.
+-   To train the model, we use Sentinel 2 surface reflectance images, then derive the water and vegetation indices (NDWI and NDVI) in addition to other Sentinel 2 bands. 
+
+.tiny[
+
+```r
+# get S2 image collection
+getS2Image &lt;- function(date, cldPerc) {
+  date &lt;- ee$Date(date)
+  S2_collection &lt;- (
+    ee$ImageCollection("COPERNICUS/S2_SR") # S2_SR collection
+    $filterBounds(basin) # filter by basin boundary
+    $filterDate(date, date$advance(1, "month")) # filter by month range
+    $filter(ee$Filter$lt("CLOUDY_PIXEL_PERCENTAGE", cldPerc)) # filter by cloudy pixel %
+  )
+  # print metadata
+  print(ee_print(S2_collection), max = 1)
+  # reduce using median
+  S2_median &lt;- S2_collection$
+    reduce(ee$Reducer$median())
+  # clip to the basin geometry
+  S2_median &lt;- S2_median$divide(10000)$clip(basin)
+  return(S2_median)
+}
+```
+]
+--
+
+---
+## Get Sentinel 2SR composite image for a given month
+
+
+```r
+# select a date
+dt &lt;-  '2021-01-01'
+s2_img &lt;-  getS2Image(date = dt, cldPerc=1) #only cloudless images
+```
+
+```
+## ------------------------------------------------ Earth Engine ImageCollection --
+## ImageCollection Metadata:
+##  - Class                      : ee$ImageCollection
+##  - Number of Images           : 189
+##  - Number of Properties       : 22
+##  - Number of Pixels*          : 6795017397
+##  - Approximate size*          : 2.79 TB
+## Image Metadata (img_index = 0):
+##  - ID                         : COPERNICUS/S2_SR/20210102T104441_20210102T104435_T29PRR
+##  - system:time_start          : 2021-01-02 10:57:19
+##  - system:time_end            : 2021-01-02 10:57:19
+##  - Number of Bands            : 23
+##  - Bands names                : B1 B2 B3 B4 B5 B6 B7 B8 B8A B9 B11 B12 AOT WVP SCL TCI_R TCI_G TCI_B MSK_CLDPRB MSK_SNWPRB QA10 QA20 QA60
+##  - Number of Properties       : 81
+##  - Number of Pixels*          : 35952473
+##  - Approximate size*          : 15.09 GB
+## Band Metadata (img_band = 'B1'):
+##  - EPSG (SRID)                : WGS 84 / UTM zone 29N (EPSG:32629)
+##  - proj4string                : +proj=utm +zone=29 +datum=WGS84 +units=m +no_defs
+##  - Geotransform               : 60 0 799980 0 -60 1600020
+##  - Nominal scale (meters)     : 60
+##  - Dimensions                 : 1531 1021
+##  - Number of Pixels           : 1563151
+##  - Data type                  : INT
+##  - Approximate size           : 671.97 MB
+##  --------------------------------------------------------------------------------
+##  NOTE: (*) Properties calculated considering a constant  geotransform and data type.$name
+## [1] "ImageCollection"
+## 
+##  [ reached getOption("max.print") -- omitted 26 entries ]
+```
+]
+--
+
+  
+---
+## Identify water and non-water
+  
+Calculate NDVI and NDWI and add that to the bands for training
+.tiny[
+
+```r
+# Normalized difference vegetation index 
+getNDVI &lt;- function (img) {
+  img$normalizedDifference(c('B8_median', 'B4_median'))
+}
+# Normalized difference water index 
+getNDWI &lt;- function (img) {
+  img$normalizedDifference(c('B3_median', 'B8_median'))
+}
+```
+
+
+```r
+# get NDVI and NDWI
+S2_NDVI = getNDVI(s2_img)$rename("NDVI")
+S2_NDWI = getNDVI(s2_img)$rename("NDWI")
+# get info
+ee_print(S2_NDVI)
+```
+
+```
+## ---------------------------------------------------------- Earth Engine Image --
+## Image Metadata:
+##  - Class                      : ee$Image
+##  - ID                         : no_id
+##  - Number of Bands            : 1
+##  - Bands names                : NDVI
+##  - Number of Properties       : 0
+##  - Number of Pixels*          : 64800
+##  - Approximate size*          : 202.50 KB
+## Band Metadata (img_band = NDVI):
+##  - EPSG (SRID)                : WGS 84 (EPSG:4326)
+##  - proj4string                : +proj=longlat +datum=WGS84 +no_defs
+##  - Geotransform               : 1 0 0 0 1 0
+##  - Nominal scale (meters)     : 111319.5
+##  - Dimensions                 : 360 180
+##  - Number of Pixels           : 64800
+##  - Data type                  : FLOAT
+##  - Approximate size           : 202.50 KB
+##  --------------------------------------------------------------------------------
+##  NOTE: (*) Properties calculated considering a constant geotransform and data type.
+```
+]
+--
+  
+---
+## Identify water and non-water
+.tiny[  
+Stack all the bands together
+
+
+```r
+band_stack = (
+  ee$Image(s2_img)
+  $addBands(S2_NDVI)
+  $addBands(S2_NDWI)
+  $float()
+)
+# select only bands with 10 resolution
+bands = c( 'NDWI', 'NDVI','B2_median', 'B3_median', 'B4_median', 'B8_median')
+band_stack &lt;- band_stack$select(bands)
+# get info 
+ee_print(band_stack)
+```
+
+```
+## ---------------------------------------------------------- Earth Engine Image --
+## Image Metadata:
+##  - Class                      : ee$Image
+##  - ID                         : no_id
+##  - Number of Bands            : 6
+##  - Bands names                : NDWI NDVI B2_median B3_median B4_median B8_median
+##  - Number of Properties       : 0
+##  - Number of Pixels*          : 388800
+##  - Approximate size*          : 1.19 MB
+## Band Metadata (img_band = NDWI):
+##  - EPSG (SRID)                : WGS 84 (EPSG:4326)
+##  - proj4string                : +proj=longlat +datum=WGS84 +no_defs
+##  - Geotransform               : 1 0 0 0 1 0
+##  - Nominal scale (meters)     : 111319.5
+##  - Dimensions                 : 360 180
+##  - Number of Pixels           : 64800
+##  - Data type                  : FLOAT
+##  - Approximate size           : 202.50 KB
+##  --------------------------------------------------------------------------------
+##  NOTE: (*) Properties calculated considering a constant geotransform and data type.
+```
+]
+--
+  
+---
+## Visualize the S2 image and the NDWI layers 
+  
+
+```r
+# Display the classification result and the input image.
+s2Image_vis = list(bands = c("B4_median", "B3_median", "B2_median"), min = 0, max = 0.3)
+class_vis = list(min = 0, max = 1, palette = cpt( "neota_base_blue"))
+```
+
+<div id="htmlwidget-cb18fef4632ec4984564" style="width:100%;height:360px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-cb18fef4632ec4984564">{"x":{"options":{"minZoom":1,"maxZoom":52,"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}},"preferCanvas":false,"bounceAtZoomLimits":false,"maxBounds":[[[-90,-370]],[[90,370]]]},"calls":[{"method":"addProviderTiles","args":["CartoDB.Positron","CartoDB.Positron","CartoDB.Positron",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["OpenStreetMap","OpenStreetMap","OpenStreetMap",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["CartoDB.DarkMatter","CartoDB.DarkMatter","CartoDB.DarkMatter",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["Esri.WorldImagery","Esri.WorldImagery","Esri.WorldImagery",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["OpenTopoMap","OpenTopoMap","OpenTopoMap",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],[],{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"addScaleBar","args":[{"maxWidth":100,"metric":true,"imperial":true,"updateWhenIdle":true,"position":"bottomleft"}]},{"method":"addTiles","args":["https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/maps/3cd9e3efde3a42c646af3afb58a31647-f173499d02378e523cf809398a2aec2b/tiles/{z}/{x}/{y}","S2 RGB","S2 RGB",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],"S2 RGB",{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"hideGroup","args":[null]},{"method":"addTiles","args":["https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/maps/517e069e88e85b8f791c73d4f609af38-3d8e2caf0fd2fd45696d9b441488d3cf/tiles/{z}/{x}/{y}","NDWI","NDWI",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],["S2 RGB","NDWI"],{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"hideGroup","args":[null]}],"setView":[[11.0551876015876,-8.75483377540263],10,[]]},"evals":[],"jsHooks":{"render":[{"code":"function(el, x, data) {\n  return (\n      function(el, x, data) {\n      // get the leaflet map\n      var map = this; //HTMLWidgets.find('#' + el.id);\n      // we need a new div element because we have to handle\n      // the mouseover output separately\n      // debugger;\n      function addElement () {\n      // generate new div Element\n      var newDiv = $(document.createElement('div'));\n      // append at end of leaflet htmlwidget container\n      $(el).append(newDiv);\n      //provide ID and style\n      newDiv.addClass('lnlt');\n      newDiv.css({\n      'position': 'relative',\n      'bottomleft':  '0px',\n      'background-color': 'rgba(255, 255, 255, 0.7)',\n      'box-shadow': '0 0 2px #bbb',\n      'background-clip': 'padding-box',\n      'margin': '0',\n      'padding-left': '5px',\n      'color': '#333',\n      'font': '9px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif',\n      'z-index': '700',\n      });\n      return newDiv;\n      }\n\n\n      // check for already existing lnlt class to not duplicate\n      var lnlt = $(el).find('.lnlt');\n\n      if(!lnlt.length) {\n      lnlt = addElement();\n\n      // grab the special div we generated in the beginning\n      // and put the mousmove output there\n\n      map.on('mousemove', function (e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                           ' lon: ' + (e.latlng.lng).toFixed(5) +\n                           ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                           ' | zoom: ' + map.getZoom() +\n                           ' | x: ' + L.CRS.EPSG3857.project(e.latlng).x.toFixed(0) +\n                           ' | y: ' + L.CRS.EPSG3857.project(e.latlng).y.toFixed(0) +\n                           ' | epsg: 3857 ' +\n                           ' | proj4: +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs ');\n      } else {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      }\n      });\n\n      // remove the lnlt div when mouse leaves map\n      map.on('mouseout', function (e) {\n      var strip = document.querySelector('.lnlt');\n      if( strip !==null) strip.remove();\n      });\n\n      };\n\n      //$(el).keypress(67, function(e) {\n      map.on('preclick', function(e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      var txt = document.querySelector('.lnlt').textContent;\n      console.log(txt);\n      //txt.innerText.focus();\n      //txt.select();\n      setClipboardText('\"' + txt + '\"');\n      }\n      });\n\n      }\n      ).call(this.getMap(), el, x, data);\n}","data":null},{"code":"function(el, x, data) {\n  return (function(el,x,data){\n           var map = this;\n\n           map.on('keypress', function(e) {\n               console.log(e.originalEvent.code);\n               var key = e.originalEvent.code;\n               if (key === 'KeyE') {\n                   var bb = this.getBounds();\n                   var txt = JSON.stringify(bb);\n                   console.log(txt);\n\n                   setClipboardText('\\'' + txt + '\\'');\n               }\n           })\n        }).call(this.getMap(), el, x, data);\n}","data":null}]}}</script>
+--
+  
+---
+
+## Create training polygons
+
+Create some training polygons for water and non water areas based on the JRC surface water and S2 image layers
+
+
+```r
+# Manually created polygons.
+water1 = ee$Geometry$Rectangle(-08.1944, 11.5764, -08.1869, 11.5817)
+water2 = ee$Geometry$Rectangle(-08.8728, 10.9167, -08.8714, 10.9174)
+nonWater1 = ee$Geometry$Rectangle(-10.6078, 10.0973, -10.6034, 10.1003)
+nonWater2 = ee$Geometry$Rectangle(-07.9872, 12.5496, -7.9740, 12.5674)
+
+# Make a FeatureCollection from the above geometries.
+tr_polygons = ee$FeatureCollection(c(
+  ee$Feature(water1, list(class = 0)),
+  ee$Feature(water2, list(class = 0)),
+  ee$Feature(nonWater1, list(class = 1)),
+  ee$Feature(nonWater2, list(class = 1))
+))
+```
+--
+
+---
+
+## Train a Random Forest classifier
+
+Here we sample data using the 4 polygons to train the Random Forest classifier.
+Please note: there is no model evaluation in this simplified example.
+
+
+```r
+# Get the values for all pixels in each polygon in the training.
+training &lt;- band_stack$sampleRegions(
+  # Get the sample from the polygons FeatureCollection
+  collection = tr_polygons,
+  # Keep this list of properties from the polygons.
+  properties = list("class"),
+  # Set the scale to get S2 image pixels in the polygons
+  scale = 10
+)
+# Create a Random Forest classifier
+rf_classifier &lt;- ee$Classifier$smileRandomForest(numberOfTrees = 50)
+# Train the classifier.
+trained &lt;- rf_classifier$train(training, "class", bands)
+# Classify the image.
+classified_img &lt;- band_stack$classify(trained)
+# Get class #1 of surface water
+Water_class &lt;- classified_img$eq(0)
+water &lt;- classified_img$updateMask(Water_class)
+```
+--
+
+---
+
+## Visualise the classified surface water
+
+
+```r
+# Display the classification result and the input image.
+class_vis = list(min = 0, max = 1, palette = c("blue"))
+Map$centerObject(basin)
+Map$addLayer(s2_img, s2Image_vis," S2_SR image"
+) + 
+Map$addLayer(water,class_vis,"water") 
+```
+
+<div id="htmlwidget-f3d4e98ec89dd989cd37" style="width:100%;height:360px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f3d4e98ec89dd989cd37">{"x":{"options":{"minZoom":1,"maxZoom":52,"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}},"preferCanvas":false,"bounceAtZoomLimits":false,"maxBounds":[[[-90,-370]],[[90,370]]]},"calls":[{"method":"addProviderTiles","args":["CartoDB.Positron","CartoDB.Positron","CartoDB.Positron",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["OpenStreetMap","OpenStreetMap","OpenStreetMap",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["CartoDB.DarkMatter","CartoDB.DarkMatter","CartoDB.DarkMatter",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["Esri.WorldImagery","Esri.WorldImagery","Esri.WorldImagery",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["OpenTopoMap","OpenTopoMap","OpenTopoMap",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],[],{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"addScaleBar","args":[{"maxWidth":100,"metric":true,"imperial":true,"updateWhenIdle":true,"position":"bottomleft"}]},{"method":"addTiles","args":["https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/maps/3cd9e3efde3a42c646af3afb58a31647-1a516c9630e5471be72a56e6eacd06b8/tiles/{z}/{x}/{y}"," S2_SR image"," S2_SR image",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"]," S2_SR image",{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"hideGroup","args":[null]},{"method":"addTiles","args":["https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/maps/bff317a34bf7a53e3cdd8986e1decda7-13d56c3944b14e3f578782e4eb8f4cff/tiles/{z}/{x}/{y}","water","water",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addLayersControl","args":[["CartoDB.Positron","OpenStreetMap","CartoDB.DarkMatter","Esri.WorldImagery","OpenTopoMap"],[" S2_SR image","water"],{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"hideGroup","args":[null]}],"setView":[[11.0551876015876,-8.75483377540263],6,[]]},"evals":[],"jsHooks":{"render":[{"code":"function(el, x, data) {\n  return (\n      function(el, x, data) {\n      // get the leaflet map\n      var map = this; //HTMLWidgets.find('#' + el.id);\n      // we need a new div element because we have to handle\n      // the mouseover output separately\n      // debugger;\n      function addElement () {\n      // generate new div Element\n      var newDiv = $(document.createElement('div'));\n      // append at end of leaflet htmlwidget container\n      $(el).append(newDiv);\n      //provide ID and style\n      newDiv.addClass('lnlt');\n      newDiv.css({\n      'position': 'relative',\n      'bottomleft':  '0px',\n      'background-color': 'rgba(255, 255, 255, 0.7)',\n      'box-shadow': '0 0 2px #bbb',\n      'background-clip': 'padding-box',\n      'margin': '0',\n      'padding-left': '5px',\n      'color': '#333',\n      'font': '9px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif',\n      'z-index': '700',\n      });\n      return newDiv;\n      }\n\n\n      // check for already existing lnlt class to not duplicate\n      var lnlt = $(el).find('.lnlt');\n\n      if(!lnlt.length) {\n      lnlt = addElement();\n\n      // grab the special div we generated in the beginning\n      // and put the mousmove output there\n\n      map.on('mousemove', function (e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                           ' lon: ' + (e.latlng.lng).toFixed(5) +\n                           ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                           ' | zoom: ' + map.getZoom() +\n                           ' | x: ' + L.CRS.EPSG3857.project(e.latlng).x.toFixed(0) +\n                           ' | y: ' + L.CRS.EPSG3857.project(e.latlng).y.toFixed(0) +\n                           ' | epsg: 3857 ' +\n                           ' | proj4: +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs ');\n      } else {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      }\n      });\n\n      // remove the lnlt div when mouse leaves map\n      map.on('mouseout', function (e) {\n      var strip = document.querySelector('.lnlt');\n      if( strip !==null) strip.remove();\n      });\n\n      };\n\n      //$(el).keypress(67, function(e) {\n      map.on('preclick', function(e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      var txt = document.querySelector('.lnlt').textContent;\n      console.log(txt);\n      //txt.innerText.focus();\n      //txt.select();\n      setClipboardText('\"' + txt + '\"');\n      }\n      });\n\n      }\n      ).call(this.getMap(), el, x, data);\n}","data":null},{"code":"function(el, x, data) {\n  return (function(el,x,data){\n           var map = this;\n\n           map.on('keypress', function(e) {\n               console.log(e.originalEvent.code);\n               var key = e.originalEvent.code;\n               if (key === 'KeyE') {\n                   var bb = this.getBounds();\n                   var txt = JSON.stringify(bb);\n                   console.log(txt);\n\n                   setClipboardText('\\'' + txt + '\\'');\n               }\n           })\n        }).call(this.getMap(), el, x, data);\n}","data":null}]}}</script>
+--
+
+---
+### Conclusions
+
+This tutorial:
+* Introduces Google Earth Engine and its components
+* Introduces the rgee package ([Aybar et al. 2021](https://cloud.r-project.org/web/packages/rgee/index.html)) and how to interact with GEE from within R 
+* Demonstrates how to retrieve hydrological data from GEE in R
+* Demonstrates how to visualize GEE data in ggplot
+* Demonstrates how to train a simple Machine Learning model in GEE
+
+
+Useful links:
+
+* [rgee vignette](https://cran.r-project.org/web/packages/rgee/vignettes/rgee01.html#1_What_is_Google_Earth_Engine_)
+* [rgee examples](https://csaybar.github.io/rgee-examples/)
+* [GEE User Guide](https://developers.google.com/earth-engine/guides/getstarted)
+* [GEE Data Catalogue](https://developers.google.com/earth-engine/datasets)
+* [Google Earth Engine Applications (Book)](https://www.mdpi.com/books/pdfview/book/1262) 
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "zenburn",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

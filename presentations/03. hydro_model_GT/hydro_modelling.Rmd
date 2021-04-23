@@ -1,0 +1,302 @@
+---
+title: "R hydrological modelling packages"
+author: "Guillaume Thirel"
+date: "2021/04/21 (updated: `r Sys.Date()`)"
+output: 
+  xaringan::moon_reader:
+    seal: false
+    lib_dir: libs
+    css: ["static/css/rhydro.css", "static/css/head-foot.css" ]
+
+    nature:
+      ratio: "16:9"
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+
+# color used in xaringanthemer
+egu_blue <- rgb(red = 0, green = 112, blue = 192,maxColorValue = 255)
+egu_yellow <- rgb(red = 255, green = 221, blue = 0,maxColorValue = 255)
+
+# color used for font awesome icons
+fa_color <- "lightgrey"
+
+# SET XARINGTHEMER CHUNK TO EVAL = TRUE TO CHANGE THEME!
+# xaringanthemer saves the resulting css theme in the main document directory.
+# drop the 'statics/css/'  from the file path to use the new css file
+
+
+# intsall missing packages
+list.of.packages <- c("xaringan", "xaringanthemer", "emo", "fontawesome")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages, repos = "http://cran.us.r-project.org")
+
+```
+
+```{r xaringan-themer, include = FALSE, eval = FALSE}
+library(xaringanthemer)
+
+# duo_accent(primary_color = rgb(red = 0, green = 112, blue = 192,maxColorValue = 255), 
+# secondary_color = rgb(red = 255, green = 221, blue = 0,maxColorValue = 255))
+
+
+
+duo_accent(primary_color =  darken_color(egu_blue, strength = 0.3),
+           secondary_color = egu_yellow,
+           inverse_background_color = egu_yellow,
+           inverse_text_color =  egu_blue,
+           title_slide_text_color = egu_yellow,
+           link_color = "darkorange",
+           black_color = "gray20",
+           table_row_even_background_color = lighten_color(color_hex = egu_blue, 
+                                                           strength = 0.8),
+           
+           extra_css = list(
+               ".title-logo-box" = list(
+                   "height" = "1750px",
+                   "width" = "175px",
+                   "position" = "absolute",
+                   "top" = "55%",
+                   "left" = "70%"
+               )),
+           outfile = "rhydro.css" 
+           
+)
+
+
+
+```
+
+class: title-slide, left, middle
+
+<h1> Hydrological modelling with R packages </h1>
+
+<br>
+
+
+<h3> Guillaume Thirel <br> <em>INRAE, HYCAR Research Unit, France</em> </h3>
+<br>
+<br>
+.small[`r fontawesome::fa("home", fill = fa_color)` [https://webgr.inrae.fr](webgr.inrae.fr)  
+`r fontawesome::fa("twitter", fill = fa_color)` [@G_Thirel](https://twitter.com/G_Thirel)
+]
+
+.title-logo-box[![](./static/img/rhydro_logo_alt.png)]
+
+
+---
+layout: true
+
+<div class="my-header">Hydrological modelling with R </div>
+
+
+<div class="my-footer"><span> Guillaume Thirel, INRAE @G_Thirel   </span></div> 
+
+---
+class: left
+
+# Context
+
+Thousands of R packages exist. 
+
+Slater et al. (2019):
+
+- an overview of interesting packages in the hydrological workflow 
+- but there was no space for going into much details
+
+We focus here on hydrological modelling
+
+It is a primordial step in the hydrological workflow
+
+<center><img src="static\img\hess-23-2939-2019-f03-web.png" height="260"></img></center>
+
+---
+
+# Rationale of this work
+
+Hundreds of hydrological models exist, some are available in R
+
+From the user point of view, there is a need for guidance in choosing a package:
+- hydrological models fit different purposes
+- packages present different functionalities 
+- uneven quality of documentation
+
+In this work, we focused on:
+- the differences between models
+- the necessary model inputs
+- the documentation
+- the implementation
+
+And we propose simple R codes to run these packages
+
+
+---
+
+# Aims of this presentation 
+
+To give an overview of:
+
+- 8 available hydrological modelling R packages
+
+- available hydrological models in these R packages
+
+--
+
+# What you will not get from this presentation but only from reading the paper
+
+- how to run each package/model  
+  (see the supplementary material of the paper)
+
+- an in-depth explanation of all hydrological models
+
+---
+
+# Collaborative international work led by Paul C. Astagneau
+
+
+<center><img src="static\img\Screenshot_HESSD2.png" height="460"></img> </center>
+
+
+---
+class: center
+
+# List of packages selected and the models they propose 
+
+| Package      | Repository | Hydrological models | Snow model|
+|:-----------  |------      |------               |-----|
+| airGR        | <center><image src = "static\img\Rlogo.svg" width="45px" ></image></center>       | GR models | $\checkmark$|
+| dynatopmodel | <center><image src = "static\img\Rlogo.svg" width="45px" ></image></center>       | Dynamic TOPMODEL | |
+| HBV.IANIGLA  | <center><image src = "static\img\Rlogo.svg" width="45px" ></image></center>       | HBV |  $\checkmark$|
+| hydromad     | <center><image src = "static\img\GitHub_Logo.png" width="40px" ></image></center>      | IHACRES&nbsp;AWBM&nbsp;GR4J&nbsp;Sacramento | $\checkmark$|
+|      sacsmaR | <center><image src = "static\img\GitHub_Logo.png" width="40px"></image></center>      | Sacramento | $\checkmark$|
+|     topmodel | <center><image src = "static\img\Rlogo.svg" width="45px" ></image></center>       | TOPMODEL 1995 | |
+|     TUWmodel | <center><image src = "static\img\Rlogo.svg" width="45px" ></image></center>       | Modified HBV | $\checkmark$|
+|       WALRUS | <center><image src = "static\img\GitHub_Logo.png" width="40px" ></image></center>      | WALRUS | $\checkmark$|
+
+
+---
+class: inverse, middle, center
+
+# Analysis from a modeller perspective
+
+
+---
+class: left, middle
+
+# Differences in spatial resolution
+
+The snow models
+
+<center><img src="static\img\neige.png" height="400"></img> </center>
+
+
+---
+class: left, middle
+
+
+# Differences in spatial resolution
+
+The hydrological models
+
+|Package     | Model                | Lumped | HRUs | Sub-catchments | Routing between HRUs and/or subcatchments |
+|:-----------|:------               | :------: | :----: | :-----------: | :------: |
+|airGR       | GR4J                 | $\checkmark$       |      | $\checkmark$               | |
+|dynatopmodel| TOPMODEL (dynamic)   |        | $\checkmark$     |                | $\checkmark$ |
+|HBV.IANIGLA | HBV                  | $\checkmark$       |      |                | |
+|hydromad    | GR4J                 | $\checkmark$       |      |                | |
+|hydromad    | IHACRES-CMD          | $\checkmark$       |      |                | |
+|hydromad    | Sacramento           | $\checkmark$       |      |                | |
+|sacsmaR     | Sacramento           | $\checkmark$       | $\checkmark$     | $\checkmark$     | $\checkmark$|
+|topmodel    | TOPMODEL (1995)      | $\sim$ | $\sim$ |                | $\checkmark$|  
+|TUWmodel    | Modified HBV         | $\checkmark$       | $\sim$ | $\sim$ | $\checkmark$|
+|WALRUS      | WALRUS               | $\checkmark$       |      |                | ||
+
+---
+
+# Unified diagrams of models
+
+<center><img src="static\img\all_models.png" height="500"></img> </center>
+
+
+---
+class: inverse, middle, center
+
+# Analysis from a package user perspective
+
+---
+class: left, middle
+
+# Models inputs
+
+
+|Package        | Model(s)      | Time step(s)   | Inputs (TS) | Inputs (static)  | Nb. of param.  |
+|:------------   |:------         |:------:         |:-----:        |:------------:      |:------:|
+| airGR         | GR models     |H&nbsp; D&nbsp; M&nbsp; A      | P&nbsp; PET |           | [1 ; 6] |
+| dynatopmodel  | Dynamic TOPMODEL|  Flex.          | P&nbsp; PET     | DEM              |  8  |
+| HBV.IANIGLA   | HBV           | Flex.             | P&nbsp; PET |                  |[7 ; 9]  |
+| hydromad      | GR4J          | D              | P&nbsp; PET      |                  | 4  |
+|               | IHACRES-CMD   | Flex.             | P&nbsp; PET |                  | 6  |
+|               | Sacramento    | $\ge$ H        | P&nbsp; PET      |                  | 13 |
+| sacsmaR       | Sacramento    |  D             | P&nbsp; PET | SA      |  13 |
+| topmodel      | TOPMODEL 1995 | Flex.             | P&nbsp; PET      | DEM              |  10   |
+| TUWmodel      | Modified HBV  | $\leq$ D       | P&nbsp; PET| SA      | 10 |
+| WALRUS        | WALRUS        |   Flex.           | P&nbsp; PET | soil type        | 3    | |
+ 
+
+
+---
+class: left, middle
+
+# Models outputs
+
+
+|Package                 | Model(s)   | TS of AET and TS of RC    | TS of internal fluxes          | TS of store levels     |  Spatially distributed|
+|:------------   |:------         |:------:          |:-----:        |:------------:      |:------:|
+| airGR         | GR models     | $\checkmark$ | $\checkmark$   | $\checkmark$     |   |
+| dynatopmodel  | Dynamic TOPMODEL      | $\checkmark$ |  $\sim$             | $\checkmark$     |  $\checkmark$ |
+| HBV.IANIGLA   | HBV           | $\checkmark$ | $\sim$ |  $\checkmark$     |   |
+| hydromad     | GR4J          | $\checkmark$ | $\sim$ | $\checkmark$      ||
+|                        | IHACRES-CMD   | $\checkmark$ | $\sim$ |  $\checkmark$       | 
+|                        | Sacramento    | $\checkmark$ |     |       $\checkmark$        |       |
+| sacsmaR       | Sacramento    |   |     |          
+| topmodel      | TOPMODEL 1995 | $\checkmark$ | $\sim$ |                  | $\checkmark$  |
+| TUWmodel      | Modified HBV  | $\checkmark$ | $\sim$ |  $\checkmark$     | $\checkmark$  | 
+| WALRUS        | WALRUS        | $\checkmark$ | $\checkmark$   | $\checkmark$     |    | | 
+ 
+---
+class: left, middle
+
+# Package functionalities
+
+|Package                 | Data preprocessing function  | Criteria    |  Data transfo.     | Automatic calibration    | Plot function     | Graphical user interface    |                                  Independent snow function| 
+|:------------   |:------:         |:------:          |:-----:        |:------------:      |:------:|:------:|:------:|
+|    airGR          | $\checkmark$    | $\checkmark$  |  $\checkmark$  | $\checkmark$    | $\checkmark$       | $\checkmark$  | $\checkmark$ |
+|    dynatopmodel   | $\checkmark$    | $\checkmark$     |   |    | $\checkmark$    |     | |
+|    HBV.IANIGLA    | $\checkmark$     |   |       |      |      |      | $\checkmark$|
+|    hydromad       | $\checkmark$    |   $\checkmark$    |  $\checkmark$   | $\checkmark$    | $\checkmark$        |  |  |
+|    sacsmaR        |   |   |       |      |      |      | $\checkmark$ |
+|    topmodel       | $\checkmark$    | $\checkmark$    |            |      |      |      |  |
+|    TUWmodel       |   | $\sim$ |     | $\sim$  |      | $\checkmark$     |  |
+|    WALRUS         | $\checkmark$    | $\checkmark$  |  $\checkmark$   | $\sim$  | $\checkmark$    | $\approx$  | $\checkmark$ | 
+
+---
+class: left, middle
+
+#CPU times
+
+<center><img src="static\img\CPU_final2.png" height="500"></img> </center>
+
+---
+class: left, middle
+
+# Running the hydrological models
+
+Example codes are provided at https://doi.org/10.15454/3PPKCL 
+
+<center><img src="static\img\Github_Rmodels.png" height="400"></img></center> 
+
+
