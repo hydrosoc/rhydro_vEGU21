@@ -28,9 +28,9 @@ Individual presentations (*.html* or PDF files) can be downloaded from the [pres
 Links to individual presentations (for direct view in browser) are below:
 
 
-- [Course intro]() // K. Smith
+- [Course intro](https://github.com/hydrosoc/rhydro_vEGU21/tree/main/presentations/00. intro_slides/rhydro_intro_slides.pdf) // K. Smith
 - [Data Retrieval]() // L. Slater 
-- [Extremes Modelling]() // I.Prosdocimi
+- [Extremes Modelling](https://github.com/hydrosoc/rhydro_vEGU21/tree/main/presentations/02.extremes_IP/02_StatModExtremes.pdf) // I. Prosdocimi
 - [Hydrological Modelling ](https://hydrosoc.github.io/rhydro_vEGU21/presentations/03.hydro_model_GT/hydro_modelling.html) // G. Thirel
 - [Hydrological Forecasting]() // K. Smith
 - [Google Earth Enigne](https://hydrosoc.github.io/rhydro_vEGU21/presentations/05.GEE_AK/GEE_AK.html) // A.Khouakhi
@@ -58,11 +58,11 @@ participants may wish also to install the following packages before the session:
 
 There are a number of other short courses using R that may be of interest to you:
 
--
--
+- <a href="https://meetingorganizer.copernicus.org/EGU21/session/38943 " rel="nofollow"> CoSMoS R-package: Simulating random fields and univariate or multivariate timeseries in hydroclimatology and beyond</a>
+
 
 ## Citation
 
 Please refer to this course as:
 
-- Katie Smith, Louise Slater, Guillaume Thirel, Ilaria Prosdocimi, Abdou Khouakhi, Lucy Barker,Alexander Hurley, Claudia Vitolo, & Shaun Harrigan. (2021, April). Using R in Hydrology at vEGU2021 
+- Katie Smith, Louise Slater, Guillaume Thirel, Ilaria Prosdocimi, Abdou Khouakhi. (2021, April). Using R in Hydrology at vEGU2021 
