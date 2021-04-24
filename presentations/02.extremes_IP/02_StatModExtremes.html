@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Modelling extremes with R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Ilaria Prosdocimi" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link rel="stylesheet" href="static/css/rhydro.css" type="text/css" />
+    <link rel="stylesheet" href="static/css/head-foot.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: title-slide, left, middle
+
+&lt;h1&gt;Modelling extremes with R &lt;/h1&gt;
+
+&lt;br&gt;
+
+
+&lt;h3&gt; Ilaria Prosdocimi &lt;br&gt; &lt;em&gt;Ca' Foscari University of Venice, Italy&lt;/em&gt; &lt;/h3&gt;
+&lt;br&gt;
+&lt;br&gt;
+.small[
+<svg aria-hidden="true" role="img" viewBox="0 0 576 512" style="height:1em;width:1.12em;vertical-align:-0.125em;margin-right:0.2em;font-size:inherit;fill:lightgrey;overflow:visible;position:relative;"><path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"/></svg> [www.unive.it](https://www.unive.it/data/people/19166744)  
+<svg aria-hidden="true" role="img" viewBox="0 0 512 512" style="height:1em;width:1em;vertical-align:-0.125em;margin-right:0.2em;font-size:inherit;fill:lightgrey;overflow:visible;position:relative;"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg> [@ilapros](https://twitter.com/ilapros)
+]
+
+.title-logo-box[![](./static/img/rhydro_logo_alt.png)]
+
+************************************************************
+
+
+---
+class: left
+# Modelling extremes with R
+
+1. Modelling extremes
+
+2. with R
+
+R is the language in which the main developments in Statistical modelling of extremes are implemented 
+
+Today only a brief introduction: comprehensive list of R package is available at the [Extremes taskview](https://cran.r-project.org/web/views/ExtremeValue.html)
+
+Today: only univariate models
+
+---
+# Statistical models for extremes  
+
+Statistics mostly focuses on the _typical_ behaviour of variables (i.e. _the mean_) 
+
+Characterisation of extremes is important for risk quantification and infrastructure design
+
+Extremes behave somewhat differently from the rest of the distribution
+
+--
+
+`\(\rightarrow\)` extreme value theory gives theoretical results for extremes 
+
+--
+
+Statistical literature and engineering/earth sciences literature and practice are not always aligned
+
+--
+
+First question: what is an extreme? 
+
+
+---
+# River flow dataset  
+
+
+
+
+
+```r
+datRiv &lt;- rnrfa::gdf(3006)
+```
+
+&lt;img src="02_StatModExtremes_files/figure-html/unnamed-chunk-3-1.svg" width="504" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+# Extremes: block (annual) maxima 
+
+What is an extreme? The largest event in the water year. 
+
+&lt;img src="02_StatModExtremes_files/figure-html/unnamed-chunk-4-1.svg" width="504" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Extremes: block (annual) maxima 
+
+What is an extreme? The largest event in the water year. 
+
+
+&lt;img src="02_StatModExtremes_files/figure-html/unnamed-chunk-5-1.svg" width="504" style="display: block; margin: auto;" /&gt;
+
+---
+# Extremes: theory for annual maxima 
+
+If we know that `\(X \sim f(x)\)` - we have that `\(P(max(X_1, \ldots, X_n) \leq z) = P(X_1 \leq z) \times \ldots  \times  P(X_n \leq z)= \{F(z)\}^n\)`
+
+But `\(f(x)\)` is unknown (and difficult to estimate). 
+
+It can be shown that `\(M_n = max(X_1, \ldots, X_n)\)` has a limiting distribution which is the GEV: 
+`$$F(y) =  \exp\left\{ -\left( 1 + \xi \frac{y-\mu}{\sigma} \right) ^{-1/\xi} \right\}$$`
+
+
+`\(Y \sim GEV(\mu, \sigma,\xi)\)` is defined on `\({y: 1 + \xi (y - \mu)/\sigma &gt; 0}\)`  so the domain changes depending on the sign of `\(\xi\)`. 
+
+
+BUT! In engineering/hydrology `\(Y \sim GEV(\xi, \alpha, \kappa)\)` and `\(\kappa = -\xi\)`. Software use different parametrisations - always check!  
+
+
+---
+# Extremes: peaks over threshold
+
+What is an extreme? All large events in the record. 
+
+
+&lt;img src="02_StatModExtremes_files/figure-html/unnamed-chunk-6-1.svg" width="504" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Extremes: peaks over threshold
+
+What is an extreme? All large events in the record
+
+
+&lt;img src="02_StatModExtremes_files/figure-html/unnamed-chunk-7-1.svg" width="504" style="display: block; margin: auto;" /&gt;
+
+---
+# Extremes: peaks over threshold
+
+What is an extreme? All (independent) large events in the record
+
+&lt;img src="02_StatModExtremes_files/figure-html/unnamed-chunk-8-1.svg" width="504" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+# Extremes: theory for peaks over threshold
+
+We define `\(Y=X-u\)`, where `\(u\)` is a given threshold. 
+
+The limiting distribution of threshold excesses given they are excesses `\((Y|X&gt;u)\)` is a GPD: 
+`$$F(y) = 1- \left( 1 + \xi \frac{y}{\sigma} \right) ^{-1/\xi}$$`
+
+`\(Y \sim GP(\sigma,\xi)\)` is defined on `\({y: 1 + \xi (y - \mu)/\sigma &gt; 0}\)`  so the domain changes depending on the sign of `\(\xi\)`. 
+
+Number of threshold exceedances follow a Poisson distribution 
+
+Elephant in the room: choice of threshold
+
+
+
+---
+# Extreme values - estimation 
+
+POT or AMAX: need to estimate a distribution. 
+
+Statistical estimation methods: 
+
+* L-moments
+* Maximum Likelihood
+* Bayesian approaches 
+* Generalised Maximum Likelihood - Penalised Likelihood (implicit priors) 
+
+&lt;p&gt;&lt;/p&gt;
+
+Describing change/non-stationary models: not possible with L-moments.
+
+&lt;p&gt;&lt;/p&gt;
+
+Distributions which are not GEV or GPD (for example GLO or LP3) are rarely implemented.
+
+---
+# Extreme value estimation in R 
+
+Some extreme value packages: 
+
+&lt;table width="700" cellspacing="0" cellpadding="0"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Package &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; L-moments &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt;   Bayesian   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Max-Likelihood &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Gen Max-Likelihood &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr style="background-color:#ffffff"&gt;
+   &lt;td style="text-align:left;"&gt; &lt;a href="https://cran.r-project.org/web/packages/lmom/index.html"&gt;lmom&lt;/a&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#9989; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#10060; &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; &amp;#10060;&lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; &amp;#10060; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr style="background-color:#ffffff"&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;a href="https://cran.r-project.org/web/packages/lmomco/index.html"&gt;lmomco&lt;/a&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#9989; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#10060; &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; &amp;#10060;&lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; &amp;#10060; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr style="background-color:#ffffff"&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;a href="https://cran.r-project.org/web/packages/ismev/index.html"&gt;ismev&lt;/a&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &amp;#10060; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#10060; &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt;&amp;#9989;&lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; &amp;#10060; &lt;/td&gt;
+  &lt;/tr&gt;
+    &lt;tr style="background-color:#ffffff"&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;a href="https://cran.r-project.org/web/packages/evd/index.html"&gt;evd&lt;/a&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#10060; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#10060; &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt;&amp;#9989;&lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; &amp;#10060; &lt;/td&gt;
+  &lt;/tr&gt;
+      &lt;tr style="background-color:#ffffff"&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;a href="https://cran.r-project.org/web/packages/mev/index.html"&gt;mev&lt;/a&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#10060; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#10060; &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt;&amp;#9989;&lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; &amp;#10060; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr style="background-color:#ffffff"&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;a href="https://cran.r-project.org/web/packages/evdbayes/index.html"&gt;evdbayes&lt;/a&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#10060; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#9989; &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; &amp;#10060;&lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; &amp;#10060; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr style="background-color:#ffffff"&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;a href="https://cran.r-project.org/web/packages/texmex/index.html"&gt;texmex&lt;/a&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#10060; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#9989; &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; &amp;#9989; &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; &amp;#10060; &amp;#9989; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr style="background-color:#ffffff"&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;a href="https://cran.r-project.org/web/packages/extRemes/index.html"&gt;extRemes&lt;/a&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#9989; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;#9989; &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; &amp;#9989; &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; &amp;#9989; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+.small[(Careful when using GMLE in extRemes - the default penalty is defined on (0,0.5))]
+
+---
+# Extreme value estimation in R 
+
+Some general purpose packages: 
+
+* &lt;a href="https://cran.r-project.org/web/packages/evgam/index.html"&gt;evgam&lt;/a&gt;: GAM models - implements GEV, GPD (and point processes) 
+* &lt;a href="https://cran.r-project.org/web/packages/gamlss/index.html"&gt;gamlss&lt;/a&gt;: GAM models - includes several skewed distributions
+* &lt;a href="https://cran.r-project.org/web/packages/mgcv/index.html"&gt;mgcv&lt;/a&gt;: GAM models - implements GEV distribution
+* &lt;a href="https://cran.r-project.org/web/packages/bamlss/index.html"&gt;bamlss&lt;/a&gt;: Bayesian GAM models - includes the GEV
+* &lt;a href="https://cran.r-project.org/web/packages/rstan/index.html"&gt;rstan&lt;/a&gt;: general purpose Bayesian modelling - implements several distributions including the Gumbel
+* &lt;a href="https://cran.r-project.org/web/packages/brms/index.html"&gt;brms&lt;/a&gt;: Bayesian regression models - includes the GEV 
+
+
+---
+# Statistical modelling of Extremes in R 
+
+Get some annual maxima data: 
+
+
+```r
+library(dataRetrieval)
+# The Aberjona River USGS Gage 01102500
+aber &lt;- suppressMessages
+(dataRetrieval::readNWISpeak(siteNumber = "01102500"))
+names(aber)[names(aber) == "peak_dt"] &lt;- "Date"
+aber &lt;- addWaterYear(aber)
+### standardise the water year 
+aber$swy &lt;- scale(aber$waterYear)
+## make flow into cubic meters
+aber$Flow &lt;- aber$peak_va * 0.028316846711688
+with(aber, plot(waterYear, Flow, type="h", bty = "l"))
+title(main = "Aberjona at Winchester, MA")
+```
+
+
+---
+# Statistical modelling of Extremes in R 
+
+&lt;img src="02_StatModExtremes_files/figure-html/unnamed-chunk-10-1.svg" width="504" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Statistical modelling of Extremes in R 
+
+
+
+Estimates for the GEV parameters: 
+
+
+```r
+## L-moments
+lmom::pelgev(lmom::samlmu(aber$Flow))
+```
+
+```
+##         xi      alpha          k 
+##  8.5733422  4.6191646 -0.2882667
+```
+
+
+
+```r
+## Maximum likelihood - notice the sign of the shape parameter
+ifit &lt;- ismev::gev.fit(aber$Flow, show=FALSE)
+rbind(ifit$mle, ifit$se)
+```
+
+```
+##           [,1]      [,2]      [,3]
+## [1,] 8.5170738 4.4605189 0.3411568
+## [2,] 0.5739466 0.4980921 0.1016359
+```
+
+
+---
+# Statistical modelling of Extremes in R 
+
+
+
+```r
+## Bayes
+suppressMessages(b &lt;- texmex::evm(Flow, data = aber, 
+                                  method = "simulate",
+                                  family = texmex::gev,
+                                  iter = 70701,burn=700,thin=7))
+#  ,priorParameters = list(c(8,4,0.3),diag(c(40,3,1))))
+### IMPORTANT
+## check convergence of the chains! 
+summary(b)
+```
+
+```
+## Family:       GEV 
+## 
+## Posterior summary:
+##                  Posterior mean        SD
+## mu: (Intercept)        8.549590 0.5918967
+## phi: (Intercept)       1.525566 0.1138874
+## xi: (Intercept)        0.344182 0.1038112
+```
+
+
+---
+# Non-stationary models
+
+Can be implemented in `ismev `, `texmex` and `extRemes`... 
+
+
+
+```r
+## location parameter changes in time
+library(extRemes)
+exFit &lt;- fevd(aber$Flow, location.fun = ~aber$swy , method = "MLE")
+## the ci for mu1 does not include 0 
+ci(exFit, type = "par")
+```
+
+```
+## fevd(x = aber$Flow, location.fun = ~aber$swy, method = "MLE")
+## 
+## [1] "Normal Approx."
+## 
+##       95% lower CI  Estimate 95% upper CI
+## mu0      7.6355445 8.6740704    9.7125962
+## mu1      0.6096182 1.3425945    2.0755709
+## scale    3.1641869 4.0861272    5.0080675
+## shape    0.1682329 0.3781068    0.5879807
+```
+
+```r
+## effective 30 years return level
+eff30yrs &lt;- return.level(exFit, return.period=30)
+```
+
+---
+# Non-stationary models 
+
+
+
+```r
+with(aber,plot(waterYear,Flow, pch =16,col = "grey40",bty = "l"))
+lines(aber$waterYear, eff30yrs, col = "orange")
+```
+
+&lt;img src="02_StatModExtremes_files/figure-html/unnamed-chunk-16-1.svg" width="504" style="display: block; margin: auto;" /&gt;
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "zenburn",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

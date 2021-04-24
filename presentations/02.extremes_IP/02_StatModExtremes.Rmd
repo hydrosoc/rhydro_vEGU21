@@ -1,0 +1,432 @@
+---
+title: "Modelling extremes with R"
+author: "Ilaria Prosdocimi"
+date: "2021/04/21 (updated: `r Sys.Date()`)"
+
+output:
+  xaringan::moon_reader:
+    seal: false
+    lib_dir: libs
+    css: ["static/css/rhydro.css", "static/css/head-foot.css" ]
+    nature:
+      highlightStyle: zenburn
+      highlightLines: true
+      countIncrementalSlides: false
+
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(fig.retina = 3, warning = FALSE, message = FALSE)
+```
+
+
+```{r presi-setup, include=FALSE}
+# color used in xaringanthemer
+egu_blue <- rgb(red = 0, green = 112, blue = 192,maxColorValue = 255)
+egu_yellow <- rgb(red = 255, green = 221, blue = 0,maxColorValue = 255)
+
+# color used for font awesome icons
+fa_color <- "lightgrey"
+```
+
+
+class: title-slide, left, middle
+
+<h1>Modelling extremes with R </h1>
+
+<br>
+
+
+<h3> Ilaria Prosdocimi <br> <em>Ca' Foscari University of Venice, Italy</em> </h3>
+<br>
+<br>
+.small[
+`r fontawesome::fa("home", fill = fa_color)` [www.unive.it](https://www.unive.it/data/people/19166744)  
+`r fontawesome::fa("twitter", fill = fa_color)` [@ilapros](https://twitter.com/ilapros)
+]
+
+.title-logo-box[![](./static/img/rhydro_logo_alt.png)]
+
+************************************************************
+
+
+---
+class: left
+# Modelling extremes with R
+
+1. Modelling extremes
+
+2. with R
+
+R is the language in which the main developments in Statistical modelling of extremes are implemented 
+
+Today only a brief introduction: comprehensive list of R package is available at the [Extremes taskview](https://cran.r-project.org/web/views/ExtremeValue.html)
+
+Today: only univariate models
+
+---
+# Statistical models for extremes  
+
+Statistics mostly focuses on the _typical_ behaviour of variables (i.e. _the mean_) 
+
+Characterisation of extremes is important for risk quantification and infrastructure design
+
+Extremes behave somewhat differently from the rest of the distribution
+
+--
+
+$\rightarrow$ extreme value theory gives theoretical results for extremes 
+
+--
+
+Statistical literature and engineering/earth sciences literature and practice are not always aligned
+
+--
+
+First question: what is an extreme? 
+
+
+---
+# River flow dataset  
+
+
+```{r,echo=FALSE,eval=TRUE}
+datRiv <- rnrfa::gdf(3006)
+datRiv <- data.frame(Date = zoo::index(datRiv), Flow = as.vector(datRiv$gdf))
+datRiv$WY <- ilaprosUtils::date2wy(datRiv$Date)
+sumL <- tapply(datRiv$Flow, factor(datRiv$WY), length); sumL <- sumL[sumL > 0.8*365] 
+datRiv <- datRiv[datRiv$WY %in% names(sumL),]
+pks <- ilaprosUtils::extractPeaks(vecObs = datRiv$Flow, mintimeDiff = 1, thrConst = 0.66)
+th <- quantile(datRiv[,"Flow"], 1-3.5*length(sumL)/nrow(datRiv))
+#dim(datRiv[pks == 1 & datRiv$Flow > th,])
+mxs <- datRiv[tapply(datRiv$Flow, factor(datRiv$WY), which.max)+
+  cumsum(c(0,tapply(datRiv$Flow, factor(datRiv$WY), length)[-length(sumL)])),]
+```
+
+```{r,echo=TRUE, eval=FALSE}
+datRiv <- rnrfa::gdf(3006)
+```
+
+```{r,echo=FALSE, fig.height=4, fig.asp=0.7, dev='svg',fig.align='center',cache=TRUE}
+plot(datRiv[,c("Date","Flow")], type="l", bty = "l")
+title(main ="Loch Ailsh at Loch Ailsh")
+```
+
+
+
+---
+# Extremes: block (annual) maxima 
+
+What is an extreme? The largest event in the water year. 
+
+```{r, echo=FALSE, fig.height=4, fig.asp=0.7, dev='svg',fig.align='center'}
+plot(datRiv[,c("Date","Flow")], type="n", bty = "l")
+for(j in unique(datRiv$WY)) lines(datRiv[datRiv$WY == j,c("Date","Flow")], type="l", 
+     bty = "l", col = ifelse(j %% 2 == 1, "grey40", "grey70"))
+abline(v = as.Date(paste0(names(sumL)[-1],"-10-01")), lty = 2, col = rgb(0.2,0.2,0.9,0.8))
+title(main ="Loch Ailsh at Loch Ailsh")
+# points(mxs, pch = 4,col="dodgerblue", cex = 0.8, lwd = 1.3)
+```
+
+
+---
+# Extremes: block (annual) maxima 
+
+What is an extreme? The largest event in the water year. 
+
+
+```{r, echo=FALSE, fig.height=4, fig.asp=0.7, dev='svg',fig.align='center'}
+plot(datRiv[,c("Date","Flow")], type="n", bty = "l")
+for(j in unique(datRiv$WY)) lines(datRiv[datRiv$WY == j,c("Date","Flow")], type="l", 
+     bty = "l", col = ifelse(j %% 2 == 1, "grey40", "grey70"))
+title(main ="Loch Ailsh at Loch Ailsh")
+abline(v = as.Date(paste0(names(sumL)[-1],"-10-01")), lty = 2, col = rgb(0.2,0.2,0.9,0.8))
+points(mxs, pch = 4,col="dodgerblue", cex = 0.8, lwd = 1.3)
+```
+
+---
+# Extremes: theory for annual maxima 
+
+If we know that $X \sim f(x)$ - we have that $P(max(X_1, \ldots, X_n) \leq z) = P(X_1 \leq z) \times \ldots  \times  P(X_n \leq z)= \{F(z)\}^n$
+
+But $f(x)$ is unknown (and difficult to estimate). 
+
+It can be shown that $M_n = max(X_1, \ldots, X_n)$ has a limiting distribution which is the GEV: 
+$$F(y) =  \exp\left\{ -\left( 1 + \xi \frac{y-\mu}{\sigma} \right) ^{-1/\xi} \right\}$$
+
+
+$Y \sim GEV(\mu, \sigma,\xi)$ is defined on ${y: 1 + \xi (y - \mu)/\sigma > 0}$  so the domain changes depending on the sign of $\xi$. 
+
+
+BUT! In engineering/hydrology $Y \sim GEV(\xi, \alpha, \kappa)$ and $\kappa = -\xi$. Software use different parametrisations - always check!  
+
+
+---
+# Extremes: peaks over threshold
+
+What is an extreme? All large events in the record. 
+
+
+```{r, echo=FALSE, fig.height=4, fig.asp=0.7, dev='svg',fig.align='center'}
+plot(datRiv[,c("Date","Flow")], type="l", bty = "l")
+title(main ="Loch Ailsh at Loch Ailsh")
+```
+
+
+---
+# Extremes: peaks over threshold
+
+What is an extreme? All large events in the record
+
+
+```{r, echo=FALSE, fig.height=4, fig.asp=0.7, dev='svg',fig.align='center'}
+plot(datRiv[,c("Date","Flow")], type="l", bty = "l")
+abline(h = th, col = "red")
+title(main ="Loch Ailsh at Loch Ailsh")
+```
+
+---
+# Extremes: peaks over threshold
+
+What is an extreme? All (independent) large events in the record
+
+```{r, echo=FALSE, fig.height=4, fig.asp=0.7, dev='svg',fig.align='center'}
+plot(datRiv[,c("Date","Flow")], type="l", bty = "l",col="grey80")
+abline(h = th, col = rgb(1,0,0,0.8))
+points(datRiv[pks == 1 & datRiv$Flow > th,], pch = 16,col=2, cex = 0.8)
+title(main ="Loch Ailsh at Loch Ailsh")
+```
+
+
+
+---
+# Extremes: theory for peaks over threshold
+
+We define $Y=X-u$, where $u$ is a given threshold. 
+
+The limiting distribution of threshold excesses given they are excesses $(Y|X>u)$ is a GPD: 
+$$F(y) = 1- \left( 1 + \xi \frac{y}{\sigma} \right) ^{-1/\xi}$$
+
+$Y \sim GP(\sigma,\xi)$ is defined on ${y: 1 + \xi (y - \mu)/\sigma > 0}$  so the domain changes depending on the sign of $\xi$. 
+
+Number of threshold exceedances follow a Poisson distribution 
+
+Elephant in the room: choice of threshold
+
+
+
+---
+# Extreme values - estimation 
+
+POT or AMAX: need to estimate a distribution. 
+
+Statistical estimation methods: 
+
+* L-moments
+* Maximum Likelihood
+* Bayesian approaches 
+* Generalised Maximum Likelihood - Penalised Likelihood (implicit priors) 
+
+<p></p>
+
+Describing change/non-stationary models: not possible with L-moments.
+
+<p></p>
+
+Distributions which are not GEV or GPD (for example GLO or LP3) are rarely implemented.
+
+---
+# Extreme value estimation in R 
+
+Some extreme value packages: 
+
+<table width="700" cellspacing="0" cellpadding="0">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Package </th>
+   <th style="text-align:center;"> L-moments </th>
+   <th style="text-align:center;">   Bayesian   </th>
+   <th style="text-align:center;"> Max-Likelihood </th>
+   <th style="text-align:center;"> Gen Max-Likelihood </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr style="background-color:#ffffff">
+   <td style="text-align:left;"> <a href="https://cran.r-project.org/web/packages/lmom/index.html">lmom</a> </td>
+   <td style="text-align:center;"> &#9989; </td>
+   <td style="text-align:center;"> &#10060; </td>
+   <td style="text-align:right;"> &#10060;</td>
+   <td style="text-align:right;"> &#10060; </td>
+  </tr>
+  <tr style="background-color:#ffffff">
+   <td style="text-align:left;">  <a href="https://cran.r-project.org/web/packages/lmomco/index.html">lmomco</a>  </td>
+   <td style="text-align:center;"> &#9989; </td>
+   <td style="text-align:center;"> &#10060; </td>
+   <td style="text-align:right;"> &#10060;</td>
+   <td style="text-align:right;"> &#10060; </td>
+  </tr>
+  <tr style="background-color:#ffffff">
+   <td style="text-align:left;">  <a href="https://cran.r-project.org/web/packages/ismev/index.html">ismev</a> </td>
+   <td style="text-align:center;">  &#10060; </td>
+   <td style="text-align:center;"> &#10060; </td>
+   <td style="text-align:right;">&#9989;</td>
+   <td style="text-align:right;"> &#10060; </td>
+  </tr>
+    <tr style="background-color:#ffffff">
+   <td style="text-align:left;">  <a href="https://cran.r-project.org/web/packages/evd/index.html">evd</a> </td>
+   <td style="text-align:center;"> &#10060; </td>
+   <td style="text-align:center;"> &#10060; </td>
+   <td style="text-align:right;">&#9989;</td>
+   <td style="text-align:right;"> &#10060; </td>
+  </tr>
+      <tr style="background-color:#ffffff">
+   <td style="text-align:left;">  <a href="https://cran.r-project.org/web/packages/mev/index.html">mev</a> </td>
+   <td style="text-align:center;"> &#10060; </td>
+   <td style="text-align:center;"> &#10060; </td>
+   <td style="text-align:right;">&#9989;</td>
+   <td style="text-align:right;"> &#10060; </td>
+  </tr>
+  <tr style="background-color:#ffffff">
+   <td style="text-align:left;">  <a href="https://cran.r-project.org/web/packages/evdbayes/index.html">evdbayes</a> </td>
+   <td style="text-align:center;"> &#10060; </td>
+   <td style="text-align:center;"> &#9989; </td>
+   <td style="text-align:right;"> &#10060;</td>
+   <td style="text-align:right;"> &#10060; </td>
+  </tr>
+  <tr style="background-color:#ffffff">
+   <td style="text-align:left;">  <a href="https://cran.r-project.org/web/packages/texmex/index.html">texmex</a> </td>
+   <td style="text-align:center;"> &#10060; </td>
+   <td style="text-align:center;"> &#9989; </td>
+   <td style="text-align:right;"> &#9989; </td>
+   <td style="text-align:right;"> &#10060; &#9989; </td>
+  </tr>
+  <tr style="background-color:#ffffff">
+   <td style="text-align:left;">  <a href="https://cran.r-project.org/web/packages/extRemes/index.html">extRemes</a> </td>
+   <td style="text-align:center;"> &#9989; </td>
+   <td style="text-align:center;"> &#9989; </td>
+   <td style="text-align:right;"> &#9989; </td>
+   <td style="text-align:right;"> &#9989; </td>
+  </tr>
+  </tbody>
+</table>
+
+.small[(Careful when using GMLE in extRemes - the default penalty is defined on (0,0.5))]
+
+---
+# Extreme value estimation in R 
+
+Some general purpose packages: 
+
+* <a href="https://cran.r-project.org/web/packages/evgam/index.html">evgam</a>: GAM models - implements GEV, GPD (and point processes) 
+* <a href="https://cran.r-project.org/web/packages/gamlss/index.html">gamlss</a>: GAM models - includes several skewed distributions
+* <a href="https://cran.r-project.org/web/packages/mgcv/index.html">mgcv</a>: GAM models - implements GEV distribution
+* <a href="https://cran.r-project.org/web/packages/bamlss/index.html">bamlss</a>: Bayesian GAM models - includes the GEV
+* <a href="https://cran.r-project.org/web/packages/rstan/index.html">rstan</a>: general purpose Bayesian modelling - implements several distributions including the Gumbel
+* <a href="https://cran.r-project.org/web/packages/brms/index.html">brms</a>: Bayesian regression models - includes the GEV 
+
+
+---
+# Statistical modelling of Extremes in R 
+
+Get some annual maxima data: 
+
+```{r,echo=TRUE,eval=FALSE}
+library(dataRetrieval)
+# The Aberjona River USGS Gage 01102500
+aber <- suppressMessages
+(dataRetrieval::readNWISpeak(siteNumber = "01102500"))
+names(aber)[names(aber) == "peak_dt"] <- "Date"
+aber <- addWaterYear(aber)
+### standardise the water year 
+aber$swy <- scale(aber$waterYear)
+## make flow into cubic meters
+aber$Flow <- aber$peak_va * 0.028316846711688
+with(aber, plot(waterYear, Flow, type="h", bty = "l"))
+title(main = "Aberjona at Winchester, MA")
+```
+
+
+---
+# Statistical modelling of Extremes in R 
+
+```{r,eval=TRUE,echo=FALSE, fig.height=4, fig.asp=0.7, dev='svg',fig.align='center',cache=TRUE}
+library(dataRetrieval)
+# The Aberjona River USGS Gage 01102500
+aber <- suppressMessages(dataRetrieval::readNWISpeak(siteNumber = "01102500"))
+names(aber)[names(aber) == "peak_dt"] <- "Date"
+aber <- addWaterYear(aber)
+### standardise the water year 
+aber$swy <- scale(aber$waterYear)
+## make flow into  cubic meters 
+aber$Flow <- aber$peak_va * 0.028316846711688
+with(aber, plot(waterYear, Flow, type="h", bty = "l"))
+title(main = "Aberjona at Winchester, MA")
+```
+
+
+---
+# Statistical modelling of Extremes in R 
+
+```{r, echo=FALSE}
+options(scipen = 999)
+```
+
+Estimates for the GEV parameters: 
+
+```{r,cache=TRUE}
+## L-moments
+lmom::pelgev(lmom::samlmu(aber$Flow))
+```
+
+
+```{r}
+## Maximum likelihood - notice the sign of the shape parameter
+ifit <- ismev::gev.fit(aber$Flow, show=FALSE)
+rbind(ifit$mle, ifit$se)
+```
+
+
+---
+# Statistical modelling of Extremes in R 
+
+
+```{r,cache=TRUE}
+## Bayes
+suppressMessages(b <- texmex::evm(Flow, data = aber, 
+                                  method = "simulate",
+                                  family = texmex::gev,
+                                  iter = 70701,burn=700,thin=7))
+#  ,priorParameters = list(c(8,4,0.3),diag(c(40,3,1))))
+### IMPORTANT
+## check convergence of the chains! 
+summary(b)
+```
+
+
+---
+# Non-stationary models
+
+Can be implemented in `ismev `, `texmex` and `extRemes`... 
+
+
+```{r}
+## location parameter changes in time
+library(extRemes)
+exFit <- fevd(aber$Flow, location.fun = ~aber$swy , method = "MLE")
+## the ci for mu1 does not include 0 
+ci(exFit, type = "par")
+## effective 30 years return level
+eff30yrs <- return.level(exFit, return.period=30)
+```
+
+---
+# Non-stationary models 
+
+
+```{r, fig.height=2.2, fig.asp=0.7, dev='svg',fig.align='center',cache=TRUE}
+with(aber,plot(waterYear,Flow, pch =16,col = "grey40",bty = "l"))
+lines(aber$waterYear, eff30yrs, col = "orange")
+```
+
+
