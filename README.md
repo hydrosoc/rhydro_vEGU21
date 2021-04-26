@@ -28,7 +28,7 @@ Individual presentations (*.html* or PDF files) can be downloaded from the [pres
 Links to individual presentations (for direct view in browser) are below:
 
 
-- [Course intro](https://github.com/hydrosoc/rhydro_vEGU21/tree/main/presentations/00.intro_slides/rhydro_intro_slides.pdf) // K. Smith
+- [Course intro](https://hydrosoc.github.io/rhydro_vEGU21/presentations/00.%20intro_slides/rhydro_intro_slides) // K. Smith
 - [Data Retrieval](https://github.com/hydrosoc/rhydro_vEGU21/blob/main/presentations/01.%20data_retrieval_LS/Louise%20Slater%20-%20Data%20retrieval.pdf) // L. Slater 
 - [Extremes Modelling](https://hydrosoc.github.io/rhydro_vEGU21/presentations/02.extremes_IP/02_StatModExtremes) // I. Prosdocimi
 - [Hydrological Modelling ](https://hydrosoc.github.io/rhydro_vEGU21/presentations/03.%20hydro_model_GT/hydro_modelling) // G. Thirel
