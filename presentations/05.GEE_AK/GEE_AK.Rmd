@@ -251,7 +251,7 @@ hybas4 <- "WWF/HydroSHEDS/v1/Basins/hybas_4"
 ffriver <- "WWF/HydroSHEDS/v1/FreeFlowingRivers"
 # SMAP soil moisture 10km
 smap10km <- "NASA_USDA/HSL/SMAP10KM_soil_moisture"
-# Open land map monthly precip 1km
+# SM2RAIN downscaled monthly precip 1km
 mth_prcp1km <- "OpenLandMap/CLM/CLM_PRECIPITATION_SM2RAIN_M/v01"
 # JRC Global Surface Water Mapping Layers 30m
 srfce_wtr30m <- "JRC/GSW1_2/GlobalSurfaceWater"
@@ -303,7 +303,7 @@ jul_prcp_layer <- Map$addLayer(mth_prcp_jul,prcp_vis,"July Precipitation in mm",
 smapSl_layer <- Map$addLayer(smap_sm,smap_vis,"SMAP soil moisture in mm")
 srfce_water_layer <- Map$addLayer(jrc_srfce_wtr,swater_vis,"Surface water occurrence %", legend = T)
 clc_layer <- Map$addLayer(clc2019,{},"Copernicus Land Cover 100m")
-elev_layer <- Map$addLayer(alos_elev,elev_vis,"ALOS DMS 30m", legend =T)
+elev_layer <- Map$addLayer(alos_elev,elev_vis,"ALOS DSM 30m", legend =T)
 ```
 ]
 --
@@ -314,7 +314,7 @@ elev_layer <- Map$addLayer(alos_elev,elev_vis,"ALOS DMS 30m", legend =T)
 
 ```{r, out.width='100%', fig.height=6}
 # show layers 
-basin_layer+jul_prcp_layer #smapSl_layer|srfce_water_layer
+basin_layer+jul_prcp_layer # smapSl_layer|srfce_water_layer
 ```
 --
 
@@ -336,7 +336,7 @@ Here, we use the basin geometry to locally download the gridded rainfall data at
 ```{r, message=FALSE, warning=FALSE}
 # basin to ee Geometry 
 ee_basin <- basin$geometry() 
-# smap sm to raster
+# SM2RAIN downscaled monthly precip 1km
 prcp_raster <- ee_as_raster(mth_prcp_jul, 
                             region = ee_basin, quiet = T) 
 # raster to df
