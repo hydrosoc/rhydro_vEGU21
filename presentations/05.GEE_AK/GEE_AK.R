@@ -8,7 +8,7 @@ library(raster)
 library(cptcity)
 
 # Initialize ee
-ee_Initialize(drive = T, quiet = T) # more info on the rgee setup can found here  https://csaybar.github.io/rgee-examples/ 
+ee_Initialize(drive = T, quiet = T) # more info on the rgee setup can e found at  https://csaybar.github.io/rgee-examples/ 
 
 # get a rough location within a given catchment area (here we use a location within the Upper catchment of Niger basin)
 poi <- ee$Geometry$Point(-9.3, 10.38)
@@ -32,7 +32,7 @@ cgls100m <- "COPERNICUS/Landcover/100m/Proba-V-C3/Global/2019"
 # Sentinel 2- Surface reflectance
 S2SR <- "COPERNICUS/S2_SR"
 
-## Get data
+## Get data 
 
 # get the basin boundary
 basin <- ee$FeatureCollection(hybas4)$filterBounds(poi)
@@ -230,3 +230,11 @@ classified_img <- band_stack$classify(trained)
 # get class #1 of surface water
 Water_class <- classified_img$eq(0)
 water <- classified_img$updateMask(Water_class)
+
+## Visualize the classified surface water
+# Display the classification result and the input image.
+class_vis = list(min = 0, max = 1, palette = c("blue"))
+Map$centerObject(basin)
+Map$addLayer(s2_img, s2Image_vis," S2_SR image"
+) + 
+  Map$addLayer(water,class_vis,"water") 

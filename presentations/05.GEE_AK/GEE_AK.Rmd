@@ -50,7 +50,7 @@ for hydrology in R
 <br>
 <br>
  
-`r fontawesome::fa("twitter", fill = fa_color)` [@akhouakhi](https://twitter.com/ab_khouakhi)
+`r fontawesome::fa("twitter", fill = fa_color)` [@ab_khouakhi](https://twitter.com/ab_khouakhi)
 
 
 .title-logo-box[![](./static/img/rhydro_logo.png)]
@@ -72,7 +72,7 @@ for hydrology in R
 - #### Quick demo 2: Simple example of machine learning in GEE
 
 **Notes:**
--  This presentation is also accompanied by an [R script]() to execute in Rstudio
+-  This presentation is accompanied by an [R script](https://github.com/hydrosoc/rhydro_vEGU21/blob/main/presentations/05.GEE_AK/GEE_AK.R) to execute in Rstudio
 
 - You need to sign up for a [Google Earth Engine account](https://signup.earthengine.google.com/#!/) to be able to access data and computing capabilities.
 
@@ -544,7 +544,7 @@ water <- classified_img$updateMask(Water_class)
 
 ---
 
-## Visualise the classified surface water
+## Visualize the classified surface water
 
 ```{r out.width = "100%",fig.align = "center",fig.height=5}
 # Display the classification result and the input image.
@@ -574,3 +574,8 @@ Useful links:
 * [GEE User Guide](https://developers.google.com/earth-engine/guides/getstarted)
 * [GEE Data Catalogue](https://developers.google.com/earth-engine/datasets)
 * [Google Earth Engine Applications (Book)](https://www.mdpi.com/books/pdfview/book/1262) 
+
+
+
+******************************************
+Contact email: a.khouakhi@cranfield.ac.uk
