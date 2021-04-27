@@ -191,7 +191,7 @@ class: left, middle
 
 The snow models
 
-<center><img src="static\img\neige.png" height="400"></img> </center>
+<center><img src="static\img\Neige.png" height="400"></img> </center>
 
 
 ---
@@ -297,6 +297,6 @@ class: left, middle
 
 Example codes are provided at https://doi.org/10.15454/3PPKCL 
 
-<center><img src="static\img\Github_Rmodels.png" height="400"></img></center> 
+<center><img src="static\img\github_Rmodels.png" height="400"></img></center> 
 
 
