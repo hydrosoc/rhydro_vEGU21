@@ -311,7 +311,7 @@ Some extreme value packages:
   </tbody>
 </table>
 
-.small[(Careful when using GMLE in extRemes - the default penalty is defined on (0,0.5))]
+<small>(Careful when using GMLE in extRemes - the default penalty is defined on (0,0.5))</small>
 
 ---
 # Extreme value estimation in R 
