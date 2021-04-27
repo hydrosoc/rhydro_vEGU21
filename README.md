@@ -46,8 +46,8 @@ participants may wish also to install the following packages before the session:
 
 
 ## Resources:
-- [Slater et al. 2019, Using R in Hydrology](https://hess.copernicus.org/articles/23/2939/2019/)
-- [Astagneau et al. 2021+, HESSD](https://hess.copernicus.org/preprints/hess-2020-498/)
+- [Slater et al. 2019, Using R in Hydrology, HESS](https://hess.copernicus.org/articles/23/2939/2019/)
+- [Astagneau et al. 2021+, Hydrology modelling R packages: a unified analysis of models and practicalities from a user perspective, HESSD](https://hess.copernicus.org/preprints/hess-2020-498/)
 - [CRAN Hydrology TaskView](https://cran.r-project.org/web/views/Hydrology.html "Hydrology TaskView on CRAN")
 - <a href="https://odelaigue.github.io/airGR/" rel="nofollow">airGR</a> - a description of the airGR package (IRSTEA GR Hydrological Models)
 - <a href="https://ropensci.github.io/hddtools/" rel="nofollow">hddtools</a> - an R package to facilitate access to a variety of online open data sources for hydrologists
