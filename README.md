@@ -46,9 +46,10 @@ participants may wish also to install the following packages before the session:
 
 
 ## Resources:
+- [Slater et al. 2019, Using R in Hydrology](https://hess.copernicus.org/articles/23/2939/2019/)
+- [Astagneau et al. 2021+, HESSD](https://hess.copernicus.org/preprints/hess-2020-498/)
 - [CRAN Hydrology TaskView](https://cran.r-project.org/web/views/Hydrology.html "Hydrology TaskView on CRAN")
 - <a href="https://odelaigue.github.io/airGR/" rel="nofollow">airGR</a> - a description of the airGR package (IRSTEA GR Hydrological Models)
-- <a href="http://abouthydrology.blogspot.co.uk/2012/08/r-resources-for-hydrologists.html" rel="nofollow">R-Resources for Hydrology</a> - a detailed list of R resources for hydrology (slightly outdated now)
 - <a href="https://ropensci.github.io/hddtools/" rel="nofollow">hddtools</a> - an R package to facilitate access to a variety of online open data sources for hydrologists
 - <a href="https://r-spatial.github.io/rgee/index.html" rel="nofollow">rgee</a> - An R binding package for calling Google Earth Engine API from within R
 
