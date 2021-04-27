@@ -179,6 +179,7 @@ I also used a couple of personal functions to make life easier that:
 # Setting Up
 
 We're working on the Lambourn catchment in the UK, a very groundwater dominated catchment. This is where ESP works the best, as it gets a lot of skill from flow persistence.
+<small>
 ```{r eval=FALSE}
 # set station and its area
 BasinInfoAll<-c(39019,234.1)
@@ -194,12 +195,15 @@ Precip    <- BasinObs$PRECIP
 PotEvap   <- BasinObs$PET
 CatchArea <- BasinInfoAll[2]
 ```
+</small>
+
 <br>
 <br>
 --- 
 ---
 
 # Running a baseline 
+<small>
 ```{r eval=FALSE}
 # RUN GR4J FOR OBS PERIOD
 InputsModel <- CreateInputsModel(FUN_MOD = RunModel_GR4J, 
@@ -218,10 +222,12 @@ OutputsModel <- RunModel_GR4J(InputsModel = InputsModel,
                              Param       = Param)
 
 ```
-
+</small>
+.center[![](./static/img/airGR.svg)]
 ---
 
 # Post process the output
+<small>
 ```{r eval=FALSE}
 obsSim<-as.data.frame(matrix(ncol=2,nrow=length(BasinObs$DATE),NA))
 obsSim[,1]<-BasinObs$DATE
@@ -233,26 +239,30 @@ obsSim <- obsSim[which(obsSim$DATE > MakeDate(31,12,1964)), ]
 # convert to cumecs
 obsSim$obsSim <- (obsSim$obsSim * CatchArea) / 86.4
 # merge with obs
-obsSim$obs <- BasinObs$FLOW_cumecs[which(BasinObs$DATE==as.POSIXct(obsSim$DATE[1])):
+obsSim$obs <- BasinObs$FLOW_cumecs[which(BasinObs$DATE==
+                                           as.POSIXct(obsSim$DATE[1])):
                                      length(BasinObs$DATE)]
 ```
+</small>
+<center><img src="./static/img/Lambourn.png" height="200"></img></center>
 
 ---
 
 # Plotting the baseline run
-
+<small>
 ```{r eval=FALSE}
 # MAKE A PLOT
 ggplot(obsSim)+
   geom_line(aes(x=DATE,y=obsSim),color="cornflower blue")+
   geom_line(aes(x=DATE,y=obs), color="indianred")
 ```
+</small>
 .center[![](./static/img/baselineplot.png)]
 
 ---
 
 # Get historic forecast data ready
-
+<small>
 ```{r, eval=FALSE}
 #remove the first few months to mirror start month of forecast
 BasinObs <- read.csv("./Final_New_BasinObs_1961_2017_39019.csv")
@@ -265,6 +275,7 @@ BasinObsNoLeap <- as.data.frame(NoLeap)
 colnames(BasinObsNoLeap)<-c("DATE")
 BasinObsNoLeap <- left_join(BasinObsNoLeap, BasinObs, by = "DATE")
 ```
+</small>
 <br>
 <br>
 .center[![](./static/img/frog.png)]
@@ -274,17 +285,23 @@ BasinObsNoLeap <- left_join(BasinObsNoLeap, BasinObs, by = "DATE")
 # Get historic forecast data ready
 
 Make input matrix for Precip
+<small>
 ```{r eval=FALSE}
-PrecipESPin<-as.data.frame(matrix(NA,nrow=length(BasinObsNoLeap$DATE),ncol=(2021-1961)+1))
+PrecipESPin<-as.data.frame(matrix(NA,nrow=length(BasinObsNoLeap$DATE),
+                                  ncol=(2021-1961)+1))
 colnames(PrecipESPin)<-c("DATE",paste0("ENS",seq(1961,2020)))
-PrecipESPin$DATE<-RemoveLeapDay(seq(MakeDate(01,04,1961),MakeDate(31,03,2021),by="day"))
-PrecipESPin[1:length(BasinObsNoLeap$DATE),2:ncol(PrecipESPin)]<-BasinObsNoLeap$PRECIP
+PrecipESPin$DATE<-RemoveLeapDay(seq(MakeDate(01,04,1961),
+                                    MakeDate(31,03,2021),by="day"))
+PrecipESPin[1:length(BasinObsNoLeap$DATE),2:ncol(PrecipESPin)]<-
+  BasinObsNoLeap$PRECIP
 precipmatrix<-as.data.frame(matrix(BasinObsNoLeap$PRECIP,nrow=365,byrow=F))
 colnames(precipmatrix)<-paste0("ENS",seq(1961,2020))
-precipmatrix$DATE<-RemoveLeapDay(seq(MakeDate(01,04,2021),MakeDate(31,03,2022),by="day"))
+precipmatrix$DATE<-RemoveLeapDay(seq(MakeDate(01,04,2021),
+                                     MakeDate(31,03,2022),by="day"))
 PrecipESPin<-rbind(PrecipESPin,precipmatrix)
 head(PrecipESPin)
 ```
+</small>
 .center[![](./static/img/inputdata.png)]
 
 ---
@@ -292,28 +309,35 @@ head(PrecipESPin)
 # Get historic forecast data ready
 
 Do the same for PET
-
+<small>
 ```{r eval=FALSE}
-PetESPin<-as.data.frame(matrix(NA,nrow=length(BasinObsNoLeap$DATE),ncol=(2021-1961)+1))
+PetESPin<-as.data.frame(matrix(NA,nrow=length(BasinObsNoLeap$DATE),
+                               ncol=(2021-1961)+1))
 colnames(PetESPin)<-c("DATE",paste0("ENS",seq(1961,2020)))
-PetESPin$DATE<-RemoveLeapDay(seq(MakeDate(01,04,1961),MakeDate(31,03,2021),by="day"))
-PetESPin[1:length(BasinObsNoLeap$DATE),2:ncol(PetESPin)]<-BasinObsNoLeap$PET
-petmatrix<-as.data.frame(matrix(BasinObsNoLeap$PET,nrow=365,byrow=F))
+PetESPin$DATE<-RemoveLeapDay(seq(MakeDate(01,04,1961),
+                                 (31,03,2021),by="day"))
+PetESPin[1:length(BasinObsNoLeap$DATE),2:ncol(PetESPin)]<-
+  BasinObsNoLeap$PET
+petmatrix<-as.data.frame(matrix(BasinObsNoLeap$PET,
+                                nrow=365,byrow=F))
 colnames(petmatrix)<-paste0("ENS",seq(1961,2020))
-petmatrix$DATE<-RemoveLeapDay(seq(MakeDate(01,04,2021),MakeDate(31,03,2022),by="day"))
+petmatrix$DATE<-RemoveLeapDay(seq(MakeDate(01,04,2021),
+                                  MakeDate(31,03,2022),by="day"))
 PetESPin<-rbind(PetESPin,petmatrix)
 ```
 And make an output matrix
 ```{r eval=FALSE}
-ESPforecasts<-as.data.frame(matrix(NA,nrow=length(BasinObsNoLeap$DATE)+365,ncol=(2021-1961)+1))
+ESPforecasts<-as.data.frame(matrix(NA,nrow=length(BasinObsNoLeap$DATE)+365,
+                                   ncol=(2021-1961)+1))
 colnames(ESPforecasts)<-c("DATE",paste0("ENS",seq(1961,2020)))
-ESPforecasts$DATE<-RemoveLeapDay(seq(MakeDate(01,04,1961),MakeDate(31,03,2022),by="day"))
+ESPforecasts$DATE<-RemoveLeapDay(seq(MakeDate(01,04,1961),
+                                     MakeDate(31,03,2022),by="day"))
 ```
-
+</small>
 ---
 
 # RUN ESP
-
+<small>
 ```{r eval = FALSE}
 for (i in 2:61){
   DatesR    <- as.POSIXlt(ESPforecasts$DATE)
@@ -327,9 +351,11 @@ for (i in 2:61){
   RunOptions <- suppressWarnings(CreateRunOptions(FUN_MOD = RunModel_GR4J,
                                                   InputsModel = InputsModel, 
                                                   IndPeriod_Run = Ind_Run,
-                                                  IniStates = NULL, IniResLevels = NULL, 
+                                                  IniStates = NULL, 
+                                                  IniResLevels = NULL, 
                                                   IndPeriod_WarmUp = NULL))
-    OutputsModel <- RunModel_GR4J(InputsModel = InputsModel,RunOptions = RunOptions, 
+    OutputsModel <- RunModel_GR4J(InputsModel = InputsModel,
+                                  RunOptions = RunOptions, 
                                   Param = Param)
   ESPforecasts[,i]<-OutputsModel$Qsim
 }
@@ -337,10 +363,11 @@ for (i in 2:61){
 ESPforecasts_m3s <- ESPforecasts
 ESPforecasts_m3s[,2:61] <- (ESPforecasts[2:61] * CatchArea) / 86.4
 ```
-
+</small>
 ---
 
 # Plot the forecast
+<small>
 ```{r eval = FALSE}
 # MAKE A PLOT
 ESPsub<-ESPforecasts_m3s[which(ESPforecasts$DATE>MakeDate(01,01,2021)),]
@@ -348,6 +375,7 @@ ESPmelt <- melt(ESPsub,id.var="DATE")
 ggplot(ESPmelt,aes(x=DATE,y=value))+
   geom_line(aes(colour=variable))
 ```
+</small>
 .center[![](./static/img/ESPforecast.png)]
 
 ---
