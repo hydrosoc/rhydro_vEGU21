@@ -12,7 +12,7 @@ Conveners: Katie Smith, Louise Slater, Guillaume Thirel, Ilaria Prosdocimi and A
 
 
 ## Details 
-- **Where?** Wednesday 28 April, 10:00-11:00 CEST using [Zoom]() webinar platform 
+- **Where?** Wednesday 28 April, 10:00-11:00 CEST using [Zoom](https://zoom.us/ "Link to zoom webpage") webinar platform (link to zoom meeting in the session page)
 - [Using R in Hydrology vEGU21 (link to session)](https://meetingorganizer.copernicus.org/EGU21/session/38926 "Link to vEGU Session Description")
 - **What?** This session is aimed at hydrologists who are interested in hearing more about R as well as those who are advanced R programmers wanting to discuss recent developments in an open environment. 
 - The session is organised in cooperation with the [Young Hydrologic Society (YHS)](https://younghs.com/ "Young Hydrologic Society website") .
