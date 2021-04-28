@@ -49,7 +49,7 @@ The most basic forecast that we could make is "climatology". This is simply look
 &lt;br&gt;
 &lt;br&gt;
 &lt;br&gt;
-.center[![](./static/img/ClimatologyForecast.png)]
+.center[![](./static/img/ClimatologyForecast.PNG)]
 
 ---
 
@@ -66,7 +66,7 @@ We know our initial conditions, so some of the years in the climatology may not 
 &lt;br&gt;
 
 
-.center[![](./static/img/ESPinitialisation.png)]]
+.center[![](./static/img/ESPinitialisation.PNG)]]
 
 
 .pull-right[
@@ -79,12 +79,12 @@ We know our initial conditions, so some of the years in the climatology may not 
 Then ESP simply uses past years of observed climate data, and runs a hydrological model as if that climate were to happen from today.
 &lt;br&gt;
 &lt;br&gt;
-.center[![](./static/img/ESPforecast1.png)]
+.center[![](./static/img/ESPforecast1.PNG)]
 
 
 ---
 # Ensemble Streamflow Prediction
-.center[![](./static/img/ESPforecast2.png)]
+.center[![](./static/img/ESPforecast2.PNG)]
 
 ---
 class: inverse, center, middle
@@ -98,7 +98,7 @@ The first step is to calibrate the GR4J model. A workthrough on how to do that c
 
 https://github.com/hydrosoc/rhydro_vEGU21/tree/main/presentations/04.hydro_forecasting_KAS/2017_hydro_modelling_files
 
-.center[![](./static/img/Rhydronotebook.png)]
+.center[![](./static/img/Rhydronotebook.PNG)]
 
 ---
 
@@ -191,7 +191,7 @@ obsSim$obs &lt;- BasinObs$FLOW_cumecs[which(BasinObs$DATE==
                                      length(BasinObs$DATE)]
 ```
 &lt;/small&gt;
-&lt;center&gt;&lt;img src="./static/img/Lambourn.png" height="200"&gt;&lt;/img&gt;&lt;/center&gt;
+&lt;center&gt;&lt;img src="./static/img/Lambourn.PNG" height="200"&gt;&lt;/img&gt;&lt;/center&gt;
 
 ---
 
@@ -252,7 +252,7 @@ PrecipESPin&lt;-rbind(PrecipESPin,precipmatrix)
 head(PrecipESPin)
 ```
 &lt;/small&gt;
-.center[![](./static/img/inputdata.png)]
+.center[![](./static/img/inputdata.PNG)]
 
 ---
 
@@ -358,7 +358,7 @@ class: inverse, center, middle
 # UK Outlook Portal
 &lt;small&gt; We are developing a new interactive web portal, that will allow our users to look at the data in detail. Check back on this link in a couple of months when it will be open to the public. https://eip.ceh.ac.uk/Hydrology/outlooks/ &lt;/small&gt;
 
-&lt;center&gt;&lt;img src="./static/img/OutlookPortal1.png" height="360"&gt;&lt;/img&gt;&lt;/center&gt;
+&lt;center&gt;&lt;img src="./static/img/OutlookPortal1.PNG" height="360"&gt;&lt;/img&gt;&lt;/center&gt;
 
 
 ---
@@ -366,20 +366,20 @@ class: inverse, center, middle
 # UK Outlook Portal
 &lt;small&gt; This page allows users to look at how many of the ensemble members sit in each category, below normal, normal and above normal. https://eip.ceh.ac.uk/Hydrology/outlooks/ &lt;/small&gt;
 
-&lt;center&gt;&lt;img src="./static/img/OutlookPortal1.png" height="360"&gt;&lt;/img&gt;&lt;/center&gt;
+&lt;center&gt;&lt;img src="./static/img/OutlookPortal1.PNG" height="360"&gt;&lt;/img&gt;&lt;/center&gt;
 
 ---
 
 # UK Outlook Portal
 &lt;small&gt; This page show users the full ensemble distributions for the forecasts moving forward, against the historic bands of normal flows. https://eip.ceh.ac.uk/Hydrology/outlooks/ &lt;/small&gt;
 
-&lt;center&gt;&lt;img src="./static/img/OutlookPortal2.png" height="360"&gt;&lt;/img&gt;&lt;/center&gt;
+&lt;center&gt;&lt;img src="./static/img/OutlookPortal2.PNG" height="360"&gt;&lt;/img&gt;&lt;/center&gt;
 
 ---
 # UK Outlook Portal
 &lt;small&gt; Finally, this page allows users to select past years of interest to see how the forecast would run if that weather were to happen again now. It also lets users define flow thresholds, and the bottom plot shows the likelihood of flows falling below those thresholds. This is particularly useful for reservoir management. https://eip.ceh.ac.uk/Hydrology/outlooks/ &lt;/small&gt;
 
-&lt;center&gt;&lt;img src="./static/img/OutlookPortal3.png" height="360"&gt;&lt;/img&gt;&lt;/center&gt;
+&lt;center&gt;&lt;img src="./static/img/OutlookPortal3.PNG" height="360"&gt;&lt;/img&gt;&lt;/center&gt;
 
 ---
 
