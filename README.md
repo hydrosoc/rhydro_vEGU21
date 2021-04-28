@@ -32,7 +32,7 @@ Links to individual presentations (for direct view in browser) are below:
 - [Data Retrieval](https://hydrosoc.github.io/rhydro_vEGU21/presentations/01.%20data_retrieval_LS/DataRetrieval) // L. Slater 
 - [Extremes Modelling](https://hydrosoc.github.io/rhydro_vEGU21/presentations/02.extremes_IP/02_StatModExtremes) // I. Prosdocimi
 - [Hydrological Modelling ](https://hydrosoc.github.io/rhydro_vEGU21/presentations/03.%20hydro_model_GT/hydro_modelling.html) // G. Thirel
-- [Hydrological Forecasting](https://hydrosoc.github.io/rhydro_vEGU21/presentations/04.hydro_forecasting_KAS/hydro_forecasting_slides) // K. Smith
+- [Hydrological Forecasting](https://hydrosoc.github.io/rhydro_vEGU21/presentations/04.hydro_forecasting_KAS/hydro_forecasting_slides.html) // K. Smith
 - [Google Earth Enigne](https://hydrosoc.github.io/rhydro_vEGU21/presentations/05.GEE_AK/GEE_AK) // A.Khouakhi
 
 ## Checks
